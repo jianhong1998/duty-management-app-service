@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "module": "commonjs",
+        "target": "es2017",
+        "sourceMap": true,
+        "allowJs": true,
+        "outDir": "dist",
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "moduleResolution": "node",
+        "forceConsistentCasingInFileNames": false
+    },
+    "include": ["src/**/*"],
+    "exclude": [
+        "node_modules",
+        "src/**/*.spec.ts",
+        "src/**/*.spec.tsx",
+        "src/**/__*__"
+    ]
+}
