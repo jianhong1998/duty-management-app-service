@@ -4,16 +4,16 @@
     "description": "",
     "main": "app.js",
     "scripts": {
+        "dev": "nodemon",
+        "test": "jest",
+        "build": "npx tsc",
+        "start:dev": "npm run db:migrate:undo:all && npm run db:migrate && npm run db:seed && nodemon",
+        "lint": "eslint . --ext .ts",
         "db:migrate:undo:all": "npx sequelize-cli db:migrate:undo:all",
         "db:migrate": "npx sequelize-cli db:migrate",
         "db:seed": "npx sequelize db:seed:all",
-        "start:dev": "npm run db:migrate:undo:all && npm run db:migrate && npm run db:seed && nodemon",
-        "dev": "nodemon",
-        "test": "jest",
         "check": "npm run lint && npm run test",
-        "lint": "eslint . --ext .ts",
-        "prettier": "prettier --write .",
-        "build": "npx tsc"
+        "prettier": "prettier --write ."
     },
     "keywords": [],
     "author": "Lee Jian Hong",
