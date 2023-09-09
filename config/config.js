@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 module.exports = {
     development: {
         username: process.env.LOCAL_DB_USERNAME,
@@ -11,7 +13,7 @@ module.exports = {
         password: process.env.DOCKER_DB_PASSWORD,
         database: process.env.DOCKER_DB_DATABASE,
         host: process.env.DOCKER_DB_HOST,
-        port: process.env.DOCKER_DB_PORT,
+        port: Number.parseInt(process.env.DOCKER_DB_PORT),
         dialect: 'postgres',
     },
     test: {

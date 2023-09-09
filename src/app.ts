@@ -1,15 +1,25 @@
 import cors from 'cors';
 import express from 'express';
 import dotenv from 'dotenv';
+import db from './sequelize/sequelize';
 
 dotenv.config();
 
-const app = express();
-const port = parseInt(process.env.PORT || '3000');
-const NODE_ENV = process.env.NODE_ENV || 'dev';
+db.init();
 
-app.use(cors());
+db.getInstance()
+    .authenticate()
+    .then(() => {
+        console.log('Database is connected.');
+    })
+    .catch((error) => console.log(error))
+    .then(() => {
+        const app = express();
+        const port = parseInt(process.env.PORT || '3000');
 
-app.listen(port, () => {
-    console.log('App is running on port', port);
-});
+        app.use(cors());
+
+        app.listen(port, () => {
+            console.log('App is running on port', port);
+        });
+    });
