@@ -16,15 +16,21 @@ module.exports = {
             employmentType: {
                 field: 'employment_type',
                 allowNull: false,
-                type: Sequelize.ENUM(['Full Time', 'Part Time']),
+                type: Sequelize.ENUM({
+                    name: 'enum_employee_employment_type',
+                    values: ['Full Time', 'Part Time'],
+                }),
             },
             role: {
                 allowNull: false,
-                type: Sequelize.ENUM([
-                    'Lead Service Crew',
-                    'Service Crew',
-                    'Junior Service Crew',
-                ]),
+                type: Sequelize.ENUM({
+                    name: 'enum_employee_role',
+                    values: [
+                        'Lead Service Crew',
+                        'Service Crew',
+                        'Junior Service Crew',
+                    ],
+                }),
             },
             contactNumber: {
                 field: 'contact_number',
@@ -53,5 +59,11 @@ module.exports = {
     },
     async down(queryInterface, Sequelize) {
         await queryInterface.dropTable('employee');
+        await queryInterface.sequelize.query(
+            'DROP TYPE IF EXISTS "enum_employee_employment_type";',
+        );
+        await queryInterface.sequelize.query(
+            'DROP TYPE IF EXISTS "enum_employee_role";',
+        );
     },
 };
