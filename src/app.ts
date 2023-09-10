@@ -2,6 +2,8 @@ import cors from 'cors';
 import express from 'express';
 import dotenv from 'dotenv';
 import db from './sequelize/sequelize';
+import bodyParser, { json } from 'body-parser';
+import indexRouter from './routes/index.router';
 
 dotenv.config();
 
@@ -18,6 +20,13 @@ db.getInstance()
         const port = parseInt(process.env.PORT || '3000');
 
         app.use(cors());
+        app.use(
+            bodyParser.urlencoded({
+                extended: false,
+            }),
+        );
+        app.use(json());
+        app.use('/', indexRouter);
 
         app.listen(port, () => {
             console.log('App is running on port', port);
