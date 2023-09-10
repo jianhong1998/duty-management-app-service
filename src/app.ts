@@ -14,7 +14,6 @@ db.getInstance()
     .then(() => {
         console.log('Database is connected.');
     })
-    .catch((error) => console.log(error))
     .then(() => {
         const app = express();
         const port = parseInt(process.env.PORT || '3000');
@@ -31,4 +30,7 @@ db.getInstance()
         app.listen(port, () => {
             console.log('App is running on port', port);
         });
+    })
+    .catch((error) => {
+        console.log(error);
     });

@@ -93,11 +93,11 @@ export default class EmployeeController {
                 employeeCreationRequestBody,
             );
 
-            if (!newEmployee) {
-                throw new Error(
-                    `Oops! Something wrong! NewEmployee is ${newEmployee}.`,
-                );
-            }
+            // if (!newEmployee) {
+            //     throw new Error(
+            //         `Oops! Something wrong! NewEmployee is ${newEmployee}.`,
+            //     );
+            // }
 
             return res.status(200).send({
                 data: newEmployee,

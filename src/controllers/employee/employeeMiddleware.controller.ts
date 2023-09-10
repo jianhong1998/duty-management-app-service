@@ -7,7 +7,6 @@ import IEmployee, {
 import NumberChecker from '../../utils/numberChecker';
 import ErrorHandler from '../../service/errorHandler/errorHandler.service';
 import EmployeeVerificationService from '../../service/employee/employeeVerification.service';
-import EmploymentType from '../../models/employee/employmentType.enum';
 
 export default class EmployeeMiddleware {
     public static async verifyEmployeeId(
@@ -25,7 +24,7 @@ export default class EmployeeMiddleware {
             );
         }
 
-        return next();
+        next();
     }
 
     public static async verifyRequestBody(
@@ -34,7 +33,8 @@ export default class EmployeeMiddleware {
         next: NextFunction,
     ) {
         if (req.method === 'GET' || req.method === 'DELETE') {
-            return next();
+            next();
+            return;
         }
 
         const { body } = req;
@@ -95,6 +95,6 @@ export default class EmployeeMiddleware {
             }
         }
 
-        return next();
+        next();
     }
 }

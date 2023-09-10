@@ -1,4 +1,4 @@
-import { Sequelize, WhereOptions } from 'sequelize';
+import { WhereOptions } from 'sequelize';
 import IEmployee, {
     IEmployeeCreation,
     IEmployeeUpdate,
@@ -69,7 +69,7 @@ export default class EmployeeService {
 
         const employees = await this.getEmployees(condition);
 
-        for (let employee of employees) {
+        for (const employee of employees) {
             const compareEmployee: IEmployee = {
                 id: 0,
                 name: data.name || employee.name,
@@ -102,7 +102,7 @@ export default class EmployeeService {
     ): Promise<IEmployee[]> {
         let employees = await this.getEmployees(condition);
 
-        for (let employee of employees) {
+        for (const employee of employees) {
             if (!employee.isActive) {
                 throw new Error(
                     `Employee ${employee.id} is already deleted before.`,
