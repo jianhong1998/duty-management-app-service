@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import db from './sequelize/sequelize';
 import bodyParser, { json } from 'body-parser';
 import indexRouter from './routes/index.router';
+import isSequelizeError from './sequelize/sequelizeErrorVerification.service';
 
 dotenv.config();
 
@@ -32,5 +33,15 @@ db.getInstance()
         });
     })
     .catch((error) => {
+        if (isSequelizeError(error)) {
+            console.log(error.original.message);
+            return;
+        }
+
+        if (error instanceof Error) {
+            console.log(error.message);
+            return;
+        }
+
         console.log(error);
     });

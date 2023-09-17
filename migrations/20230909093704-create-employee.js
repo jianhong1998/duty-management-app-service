@@ -38,10 +38,80 @@ module.exports = {
                 type: Sequelize.INTEGER,
             },
             isActive: {
-                type: Sequelize.BOOLEAN,
-                allowNull: false,
                 field: 'is_active',
+                allowNull: false,
                 defaultValue: 'true',
+                type: Sequelize.BOOLEAN,
+            },
+            monAvailabilityTimeSlotId: {
+                field: 'mon_availability_time_slot_id',
+                allowNull: true,
+                defaultValue: null,
+                type: Sequelize.INTEGER,
+                references: {
+                    model: 'time_slot',
+                    key: 'id',
+                },
+            },
+            tueAvailabilityTimeSlotId: {
+                field: 'tue_availability_time_slot_id',
+                allowNull: true,
+                defaultValue: null,
+                type: Sequelize.INTEGER,
+                references: {
+                    model: 'time_slot',
+                    key: 'id',
+                },
+            },
+            wedAvailabilityTimeSlotId: {
+                field: 'wed_availability_time_slot_id',
+                allowNull: true,
+                defaultValue: null,
+                type: Sequelize.INTEGER,
+                references: {
+                    model: 'time_slot',
+                    key: 'id',
+                },
+            },
+            thuAvailabilityTimeSlotId: {
+                field: 'thu_availability_time_slot_id',
+                allowNull: true,
+                defaultValue: null,
+                type: Sequelize.INTEGER,
+                references: {
+                    model: 'time_slot',
+                    key: 'id',
+                },
+            },
+            friAvailabilityTimeSlotId: {
+                field: 'fri_availability_time_slot_id',
+                allowNull: true,
+                defaultValue: null,
+                type: Sequelize.INTEGER,
+                references: {
+                    model: 'time_slot',
+                    key: 'id',
+                },
+            },
+            satAvailabilityTimeSlotId: {
+                field: 'sat_availability_time_slot_id',
+                allowNull: true,
+                defaultValue: null,
+                type: Sequelize.INTEGER,
+                references: {
+                    model: 'time_slot',
+                    key: 'id',
+                },
+            },
+            sunAvailabilityTimeSlotId: {
+                field: 'sun_availability_time_slot_id',
+                allowNull: true,
+                defaultValue: null,
+                type: Sequelize.INTEGER,
+                references: {
+                    model: 'time_slot',
+                    key: 'id',
+                },
             },
             createdAt: {
                 field: 'created_at',

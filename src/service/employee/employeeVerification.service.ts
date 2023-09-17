@@ -28,12 +28,54 @@ export default class EmployeeVerificationService {
         const hasIsActive =
             'isActive' in object && typeof object.isActive === 'boolean';
 
+        const hasMonAvailabilityTimeSlotId =
+            'monAvailabilityTimeSlotId' in object &&
+            (typeof object.monAvailabilityTimeSlotId === 'number' ||
+                object.monAvailabilityTimeSlotId === null);
+
+        const hasTueAvailabilityTimeSlotId =
+            'tueAvailabilityTimeSlotId' in object &&
+            (typeof object.tueAvailabilityTimeSlotId === 'number' ||
+                object.tueAvailabilityTimeSlotId === null);
+
+        const hasWedAvailabilityTimeSlotId =
+            'wedAvailabilityTimeSlotId' in object &&
+            (typeof object.wedAvailabilityTimeSlotId === 'number' ||
+                object.wedAvailabilityTimeSlotId === null);
+
+        const hasThuAvailabilityTimeSlotId =
+            'thuAvailabilityTimeSlotId' in object &&
+            (typeof object.thuAvailabilityTimeSlotId === 'number' ||
+                object.thuAvailabilityTimeSlotId === null);
+
+        const hasFriAvailabilityTimeSlotId =
+            'friAvailabilityTimeSlotId' in object &&
+            (typeof object.friAvailabilityTimeSlotId === 'number' ||
+                object.friAvailabilityTimeSlotId === null);
+
+        const hasSatAvailabilityTimeSlotId =
+            'satAvailabilityTimeSlotId' in object &&
+            (typeof object.satAvailabilityTimeSlotId === 'number' ||
+                object.satAvailabilityTimeSlotId === null);
+
+        const hasSunAvailabilityTimeSlotId =
+            'sunAvailabilityTimeSlotId' in object &&
+            (typeof object.sunAvailabilityTimeSlotId === 'number' ||
+                object.sunAvailabilityTimeSlotId === null);
+
         return (
             hasName ||
             hasEmploymentType ||
             hasRole ||
             hasContactNumber ||
-            hasIsActive
+            hasIsActive ||
+            hasMonAvailabilityTimeSlotId ||
+            hasTueAvailabilityTimeSlotId ||
+            hasWedAvailabilityTimeSlotId ||
+            hasThuAvailabilityTimeSlotId ||
+            hasFriAvailabilityTimeSlotId ||
+            hasSatAvailabilityTimeSlotId ||
+            hasSunAvailabilityTimeSlotId
         );
     }
 

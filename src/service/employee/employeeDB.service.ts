@@ -77,6 +77,27 @@ export default class EmployeeService {
                 employmentType: data.employmentType || employee.employmentType,
                 isActive: data.isActive || employee.isActive,
                 contactNumber: data.contactNumber || employee.contactNumber,
+                monAvailabilityTimeSlotId:
+                    data.monAvailabilityTimeSlotId ||
+                    employee.monAvailabilityTimeSlotId,
+                tueAvailabilityTimeSlotId:
+                    data.tueAvailabilityTimeSlotId ||
+                    employee.tueAvailabilityTimeSlotId,
+                wedAvailabilityTimeSlotId:
+                    data.wedAvailabilityTimeSlotId ||
+                    employee.wedAvailabilityTimeSlotId,
+                thuAvailabilityTimeSlotId:
+                    data.thuAvailabilityTimeSlotId ||
+                    employee.thuAvailabilityTimeSlotId,
+                friAvailabilityTimeSlotId:
+                    data.friAvailabilityTimeSlotId ||
+                    employee.friAvailabilityTimeSlotId,
+                satAvailabilityTimeSlotId:
+                    data.satAvailabilityTimeSlotId ||
+                    employee.satAvailabilityTimeSlotId,
+                sunAvailabilityTimeSlotId:
+                    data.sunAvailabilityTimeSlotId ||
+                    employee.sunAvailabilityTimeSlotId,
             };
 
             const result = this.compareEmployee({
@@ -126,6 +147,7 @@ export default class EmployeeService {
         compareRole?: boolean;
         compareContactNumber?: boolean;
         compareIsActive?: boolean;
+        compareAvailabilityTimeSlotIds?: boolean;
     }): boolean {
         const {
             employee1,
@@ -136,6 +158,7 @@ export default class EmployeeService {
             compareIsActive,
             compareName,
             compareRole,
+            compareAvailabilityTimeSlotIds,
         } = options;
 
         if (compareId && employee1.id !== employee2.id) {
@@ -172,6 +195,57 @@ export default class EmployeeService {
         if (compareRole && employee1.role !== employee2.role) {
             console.log('role');
             return false;
+        }
+
+        if (compareAvailabilityTimeSlotIds) {
+            if (
+                employee1.monAvailabilityTimeSlotId !==
+                employee2.monAvailabilityTimeSlotId
+            ) {
+                return false;
+            }
+
+            if (
+                employee1.tueAvailabilityTimeSlotId !==
+                employee2.tueAvailabilityTimeSlotId
+            ) {
+                return false;
+            }
+
+            if (
+                employee1.wedAvailabilityTimeSlotId !==
+                employee2.wedAvailabilityTimeSlotId
+            ) {
+                return false;
+            }
+
+            if (
+                employee1.thuAvailabilityTimeSlotId !==
+                employee2.thuAvailabilityTimeSlotId
+            ) {
+                return false;
+            }
+
+            if (
+                employee1.friAvailabilityTimeSlotId !==
+                employee2.friAvailabilityTimeSlotId
+            ) {
+                return false;
+            }
+
+            if (
+                employee1.satAvailabilityTimeSlotId !==
+                employee2.satAvailabilityTimeSlotId
+            ) {
+                return false;
+            }
+
+            if (
+                employee1.sunAvailabilityTimeSlotId !==
+                employee2.sunAvailabilityTimeSlotId
+            ) {
+                return false;
+            }
         }
 
         return true;

@@ -4,11 +4,13 @@ module.exports = {
     async up(queryInterface, Sequelize) {
         await queryInterface.createTable('monthly_duty_schedule', {
             date: {
-                type: Sequelize.DATEONLY,
+                allowNull: false,
                 primaryKey: true,
+                type: Sequelize.DATEONLY,
             },
             employeeId: {
                 field: 'employee_id',
+                allowNull: false,
                 primaryKey: true,
                 type: Sequelize.INTEGER,
                 references: {
