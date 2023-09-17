@@ -5,6 +5,7 @@ import {
     CreatedAt,
     DataType,
     Default,
+    ForeignKey,
     Model,
     PrimaryKey,
     Table,
@@ -13,6 +14,7 @@ import {
 import IEmployee from './employee.model';
 import EmploymentType from './employmentType.enum';
 import EmployeeRole from './employeeRole.enum';
+import TimeSlotDBModel from '../timeSlot/timeSlotDBModel.model';
 
 @Table({
     tableName: 'employee',
@@ -59,6 +61,69 @@ export default class EmployeeDBModel extends Model<IEmployee> {
         field: 'is_active',
     })
     isActive: boolean;
+
+    @AllowNull(true)
+    @Default(null)
+    @ForeignKey(() => TimeSlotDBModel)
+    @Column({
+        field: 'mon_availability_time_slot_id',
+        type: DataType.INTEGER,
+    })
+    monAvailabilityTimeSlotId: number | null;
+
+    @AllowNull(true)
+    @Default(null)
+    @ForeignKey(() => TimeSlotDBModel)
+    @Column({
+        field: 'tue_availability_time_slot_id',
+        type: DataType.INTEGER,
+    })
+    tueAvailabilityTimeSlotId: number | null;
+
+    @AllowNull(true)
+    @Default(null)
+    @ForeignKey(() => TimeSlotDBModel)
+    @Column({
+        field: 'wed_availability_time_slot_id',
+        type: DataType.INTEGER,
+    })
+    wedAvailabilityTimeSlotId: number | null;
+
+    @AllowNull(true)
+    @Default(null)
+    @ForeignKey(() => TimeSlotDBModel)
+    @Column({
+        field: 'thu_availability_time_slot_id',
+        type: DataType.INTEGER,
+    })
+    thuAvailabilityTimeSlotId: number | null;
+
+    @AllowNull(true)
+    @Default(null)
+    @ForeignKey(() => TimeSlotDBModel)
+    @Column({
+        field: 'fri_availability_time_slot_id',
+        type: DataType.INTEGER,
+    })
+    friAvailabilityTimeSlotId: number | null;
+
+    @AllowNull(true)
+    @Default(null)
+    @ForeignKey(() => TimeSlotDBModel)
+    @Column({
+        field: 'sat_availability_time_slot_id',
+        type: DataType.INTEGER,
+    })
+    satAvailabilityTimeSlotId: number | null;
+
+    @AllowNull(true)
+    @Default(null)
+    @ForeignKey(() => TimeSlotDBModel)
+    @Column({
+        field: 'sun_availability_time_slot_id',
+        type: DataType.INTEGER,
+    })
+    sunAvailabilityTimeSlotId: number | null;
 
     @CreatedAt
     @Column({ type: DataType.DATE, field: 'created_at' })
