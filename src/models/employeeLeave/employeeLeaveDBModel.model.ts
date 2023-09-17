@@ -80,8 +80,12 @@ export default class EmployeeLeaveDBModel extends Model<IEmployeeLeave> {
 
     @AfterFind
     static convertEmployee(
-        instancens: EmployeeLeaveDBModel[] | EmployeeLeaveDBModel,
+        instancens: EmployeeLeaveDBModel[] | EmployeeLeaveDBModel | null,
     ) {
+        if (instancens === null) {
+            return;
+        }
+
         if (Array.isArray(instancens)) {
             return instancens.map((instance) => {
                 const employee = (instance.employee as EmployeeDBModel)

@@ -103,8 +103,12 @@ export default class TimeSlotDBModel extends Model<ITimeSlot> {
 
     @AfterFind
     static convertTimeToDateObject(
-        instances: TimeSlotDBModel | TimeSlotDBModel[],
+        instances: TimeSlotDBModel | TimeSlotDBModel[] | null,
     ) {
+        if (instances === null) {
+            return;
+        }
+
         if (Array.isArray(instances)) {
             instances = instances.map((instance) => {
                 const startTime = `2023-01-01T${

@@ -72,8 +72,13 @@ export default class EmployeeMonthlyAvailabilityDBModel extends Model<IEmployeeM
     static convertDate(
         instances:
             | EmployeeMonthlyAvailabilityDBModel[]
-            | EmployeeMonthlyAvailabilityDBModel,
+            | EmployeeMonthlyAvailabilityDBModel
+            | null,
     ) {
+        if (instances === null) {
+            return;
+        }
+
         if (Array.isArray(instances)) {
             return instances.map((instance) => {
                 const date = new Date(instance.date);
@@ -97,8 +102,13 @@ export default class EmployeeMonthlyAvailabilityDBModel extends Model<IEmployeeM
     static fillInAllData(
         instances:
             | EmployeeMonthlyAvailabilityDBModel[]
-            | EmployeeMonthlyAvailabilityDBModel,
+            | EmployeeMonthlyAvailabilityDBModel
+            | null,
     ) {
+        if (instances === null) {
+            return;
+        }
+
         if (Array.isArray(instances)) {
             return instances.map((instance) => {
                 if (typeof instance.employeeDBModel !== 'undefined') {
