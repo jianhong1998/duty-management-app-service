@@ -2,17 +2,7 @@ import UserAccountService from '../userAccount/userAccount.service';
 import bcrypt from 'bcrypt';
 import TokenService from './token.service';
 import EmployeeDBModel from '../../models/employee/employeeDBModel.model';
-
-type LoginResult =
-    | {
-          isLoginSuccess: true;
-          token: string;
-          name: string;
-      }
-    | {
-          isLoginSuccess: false;
-          message: string;
-      };
+import LoginResult from '../../models/auth/loginResult.model';
 
 export default class LoginService {
     static async login(email: string, password: string): Promise<LoginResult> {

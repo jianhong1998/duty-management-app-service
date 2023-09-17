@@ -2,23 +2,8 @@ import { Request, Response } from 'express';
 import LoginService from '../../service/login/login.service';
 import ErrorHandler from '../../service/errorHandler/errorHandler.service';
 import StandardResponse from '../../models/response/standardResponse.model';
-
-interface ILoginRequest {
-    email: string;
-    password: string;
-}
-
-type ILoginResponse =
-    | {
-          isLoginSuccess: true;
-          token: string;
-          name: string;
-      }
-    | {
-          isLoginSuccess: false;
-          errorMessage: string;
-          statusCode: number;
-      };
+import ILoginRequest from '../../models/auth/loginRequest.model';
+import ILoginResponse from '../../models/auth/loginResponse.model';
 
 export default class AuthController {
     static async login(
