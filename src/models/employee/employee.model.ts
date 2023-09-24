@@ -40,3 +40,23 @@ export interface IEmployeeUpdate {
     satAvailabilityTimeSlotId?: number | null;
     sunAvailabilityTimeSlotId?: number | null;
 }
+
+export interface IEmployeeResponse {
+    id: number;
+    name: string;
+    employmentType: EmploymentType;
+    role: EmployeeRole;
+    contactNumber: number;
+    isActive: boolean;
+    weeklyAvailabilityTimeSlotIds: {
+        mon: number | null;
+        tue: number | null;
+        wed: number | null;
+        thu: number | null;
+        fri: number | null;
+        sat: number | null;
+        sun: number | null;
+    };
+    createdAt?: Date;
+    updatedAt?: Date;
+}

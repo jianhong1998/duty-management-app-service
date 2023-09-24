@@ -31,14 +31,12 @@ export default class LoginService {
             };
         }
 
-        const token = TokenService.generateToken<{ userId: number }>({
-            userId: user.id,
-        });
+        const token = TokenService.generateToken({ userId: user.id });
 
         return {
             isLoginSuccess: true,
             token,
-            name: user.employee?.name,
+            name: user.employee.name,
         };
     }
 }
