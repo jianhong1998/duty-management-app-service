@@ -2,16 +2,18 @@ import { Request, Response } from 'express';
 import StandardResponse from '../../models/response/standardResponse.model';
 import IEmployee, {
     IEmployeeCreation,
+    IEmployeeResponse,
     IEmployeeUpdate,
 } from '../../models/employee/employee.model';
 import ErrorHandler from '../../service/errorHandler/errorHandler.service';
 import EmployeeService from '../../service/employee/employeeDB.service';
 import { WhereOptions } from 'sequelize';
+import EmployeeConvertorService from '../../service/employee/employeeConvertor.service';
 
 export default class EmployeeController {
     public static async getAllEmployeesHandler(
         req: Request<undefined, any, undefined, { isActive?: string }>,
-        res: Response<StandardResponse<IEmployee[]>>,
+        res: Response<StandardResponse<IEmployeeResponse[]>>,
     ) {
         const { isActive: isActiveString } = req.query;
 
@@ -24,9 +26,15 @@ export default class EmployeeController {
             case 'false':
                 isActive = false;
                 break;
-            default:
+            case undefined:
                 isActive = undefined;
                 break;
+            default:
+                return ErrorHandler.sendErrorResponse(
+                    res,
+                    400,
+                    "Value of isActive is invalid. Must be either 'true' or 'false'.",
+                );
         }
 
         try {
@@ -35,8 +43,16 @@ export default class EmployeeController {
                     isActive,
                 });
 
+                const employeeResponses: IEmployeeResponse[] = employees.map(
+                    (employee) => {
+                        return EmployeeConvertorService.convertToIEmployeeResponse(
+                            employee,
+                        );
+                    },
+                );
+
                 return res.status(200).send({
-                    data: employees,
+                    data: employeeResponses,
                     isSuccess: true,
                 });
             }
@@ -44,7 +60,11 @@ export default class EmployeeController {
             const employees = await EmployeeService.getAllEmployees();
 
             return res.status(200).send({
-                data: employees,
+                data: employees.map((employee) =>
+                    EmployeeConvertorService.convertToIEmployeeResponse(
+                        employee,
+                    ),
+                ),
                 isSuccess: true,
             });
         } catch (error) {
@@ -55,7 +75,7 @@ export default class EmployeeController {
 
     public static async getEmployeeHandler(
         req: Request<{ employeeId: string }>,
-        res: Response<StandardResponse<IEmployee>>,
+        res: Response<StandardResponse<IEmployeeResponse>>,
     ) {
         try {
             const employeeId = Number.parseInt(req.params.employeeId);
@@ -73,7 +93,9 @@ export default class EmployeeController {
             }
 
             return res.status(200).send({
-                data: employees[0],
+                data: EmployeeConvertorService.convertToIEmployeeResponse(
+                    employees[0],
+                ),
                 isSuccess: true,
             });
         } catch (error) {
@@ -84,7 +106,7 @@ export default class EmployeeController {
 
     public static async createEmployeeHandler(
         req: Request<undefined, any, IEmployeeCreation>,
-        res: Response<StandardResponse<IEmployee>>,
+        res: Response<StandardResponse<IEmployeeResponse>>,
     ) {
         try {
             const employeeCreationRequestBody = req.body;
@@ -93,14 +115,10 @@ export default class EmployeeController {
                 employeeCreationRequestBody,
             );
 
-            // if (!newEmployee) {
-            //     throw new Error(
-            //         `Oops! Something wrong! NewEmployee is ${newEmployee}.`,
-            //     );
-            // }
-
             return res.status(200).send({
-                data: newEmployee,
+                data: EmployeeConvertorService.convertToIEmployeeResponse(
+                    newEmployee,
+                ),
                 isSuccess: true,
             });
         } catch (error) {
@@ -111,7 +129,7 @@ export default class EmployeeController {
 
     public static async updateEmployeesHandler(
         req: Request<{ employeeId: string }, any, IEmployeeUpdate>,
-        res: Response<StandardResponse<IEmployee[]>>,
+        res: Response<StandardResponse<IEmployeeResponse[]>>,
     ) {
         const employeeId = Number.parseInt(req.params.employeeId);
 
@@ -134,7 +152,11 @@ export default class EmployeeController {
             }
 
             return res.status(200).send({
-                data: employees,
+                data: employees.map((employee) =>
+                    EmployeeConvertorService.convertToIEmployeeResponse(
+                        employee,
+                    ),
+                ),
                 isSuccess: true,
             });
         } catch (error) {
@@ -145,7 +167,7 @@ export default class EmployeeController {
 
     public static async deleteEmployeeHandler(
         req: Request<{ employeeId: string }>,
-        res: Response<StandardResponse<IEmployee[]>>,
+        res: Response<StandardResponse<IEmployeeResponse[]>>,
     ) {
         const employeeId = Number.parseInt(req.params.employeeId);
 
@@ -163,7 +185,11 @@ export default class EmployeeController {
             }
 
             return res.status(200).send({
-                data: employees,
+                data: employees.map((employee) =>
+                    EmployeeConvertorService.convertToIEmployeeResponse(
+                        employee,
+                    ),
+                ),
                 isSuccess: true,
             });
         } catch (error) {

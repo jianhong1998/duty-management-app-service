@@ -84,8 +84,15 @@ export default class MonthlyDutyScheduleDBModel extends Model<IMonthlyDutySchedu
 
     @AfterFind
     static convertDate(
-        instances: MonthlyDutyScheduleDBModel[] | MonthlyDutyScheduleDBModel,
+        instances:
+            | MonthlyDutyScheduleDBModel[]
+            | MonthlyDutyScheduleDBModel
+            | null,
     ) {
+        if (instances === null) {
+            return;
+        }
+
         if (Array.isArray(instances)) {
             return instances.map((instance) => {
                 const date = new Date(instance.date);
@@ -107,8 +114,15 @@ export default class MonthlyDutyScheduleDBModel extends Model<IMonthlyDutySchedu
 
     @AfterFind
     static fillInDataValues(
-        instances: MonthlyDutyScheduleDBModel[] | MonthlyDutyScheduleDBModel,
+        instances:
+            | MonthlyDutyScheduleDBModel[]
+            | MonthlyDutyScheduleDBModel
+            | null,
     ) {
+        if (instances === null) {
+            return;
+        }
+
         if (Array.isArray(instances)) {
             return instances.map((instance) => {
                 if (instance.employeeDBModel) {

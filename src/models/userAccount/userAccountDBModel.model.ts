@@ -79,8 +79,12 @@ export default class UserAccountDBModel extends Model<IUserAccount> {
 
     @AfterFind
     static convertEmployee(
-        instances: UserAccountDBModel[] | UserAccountDBModel,
+        instances: UserAccountDBModel[] | UserAccountDBModel | null,
     ) {
+        if (instances === null) {
+            return;
+        }
+
         if (Array.isArray(instances)) {
             return instances.map((instance) => {
                 const employee = instance.employeeDBModel.dataValues;
