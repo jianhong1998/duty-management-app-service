@@ -20,4 +20,12 @@ export default class TokenService {
             return false;
         }
     }
+
+    static decodeToken(token: string): ITokenPayload {
+        const { userId } = jwt.decode(token) as unknown as { userId: number };
+
+        return {
+            userId,
+        };
+    }
 }

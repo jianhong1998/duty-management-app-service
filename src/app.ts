@@ -13,6 +13,7 @@ db.init();
 db.getInstance()
     .authenticate()
     .then(() => {
+        console.log('Environment: ', process.env.NODE_ENV);
         console.log('Database is connected.');
     })
     .then(() => {
