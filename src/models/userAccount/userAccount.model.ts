@@ -1,7 +1,6 @@
 import IEmployee from '../employee/employee.model';
 import EmployeeDBModel from '../employee/employeeDBModel.model';
-import { UserAccountStatus } from './UserAccountStatus.enum';
-import { UserAccountType } from './userAccountType.enum';
+import { UserAccountStatus, UserAccountType } from './userAccount.enum';
 
 export default interface IUserAccount {
     id: number;

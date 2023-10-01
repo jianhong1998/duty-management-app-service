@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 import ErrorHandler from '../../service/errorHandler/errorHandler.service';
-import { UserAccountType } from '../../models/userAccount/userAccountType.enum';
+import { UserAccountType } from '../../models/userAccount/userAccount.enum';
 import TokenService from '../../service/login/token.service';
 import UserAccountService from '../../service/userAccount/userAccountDB.service';
 

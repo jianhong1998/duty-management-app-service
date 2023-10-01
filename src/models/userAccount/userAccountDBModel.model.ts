@@ -15,10 +15,9 @@ import {
     UpdatedAt,
 } from 'sequelize-typescript';
 import IUserAccount from './userAccount.model';
-import { UserAccountType } from './userAccountType.enum';
+import { UserAccountStatus, UserAccountType } from './userAccount.enum';
 import EmployeeDBModel from '../employee/employeeDBModel.model';
 import IEmployee from '../employee/employee.model';
-import { UserAccountStatus } from './UserAccountStatus.enum';
 
 @Table({
     tableName: 'user_account',

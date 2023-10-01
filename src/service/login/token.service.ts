@@ -16,7 +16,7 @@ export default class TokenService {
             jwt.verify(token, process.env.JWT_SECRET || this.DUMMY_JWT_SECRET);
             return true;
         } catch (error) {
-            console.log(error.message);
+            console.log((error as Error).message);
             return false;
         }
     }
