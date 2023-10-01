@@ -20,4 +20,6 @@ RUN npm run build
 
 COPY ./ap-southeast-1-bundle.pem ./dist
 
+EXPOSE 3001
+
 CMD ["npm", "run", "start"]
