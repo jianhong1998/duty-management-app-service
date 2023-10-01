@@ -18,4 +18,6 @@ COPY . .
 
 RUN npm run build
 
+COPY ./ap-southeast-1-bundle.pem ./dist
+
 CMD ["npm", "run", "start"]
