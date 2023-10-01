@@ -15,37 +15,38 @@ module.exports = {
 
         await queryInterface.bulkInsert('employee', [
             {
-                name: 'Employee 1',
+                name: 'Casper',
                 employment_type: 'Full Time',
                 role: 'Lead Service Crew',
-                contact_number: 161111111,
+                contact_number: 1112345678,
+                mon_availability_time_slot_id: 1,
             },
             {
-                name: 'Employee 2',
+                name: 'Si Ying',
                 employment_type: 'Part Time',
                 role: 'Lead Service Crew',
                 contact_number: 162222222,
             },
             {
-                name: 'Employee 3',
+                name: 'Seth',
                 employment_type: 'Part Time',
                 role: 'Junior Service Crew',
                 contact_number: 163333333,
             },
             {
-                name: 'Employee 4',
+                name: 'Wei Jie',
                 employment_type: 'Full Time',
                 role: 'Junior Service Crew',
                 contact_number: 164444444,
             },
             {
-                name: 'Employee 5',
+                name: 'Xing Ern',
                 employment_type: 'Full Time',
                 role: 'Service Crew',
                 contact_number: 165555555,
             },
             {
-                name: 'Employee 6',
+                name: 'Jian Hong',
                 employment_type: 'Part Time',
                 role: 'Service Crew',
                 contact_number: 166666666,
