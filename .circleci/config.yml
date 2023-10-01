@@ -75,7 +75,7 @@ jobs:
                   family: 'dma-staging-task-def'
                   service-name: 'dma-staging-service'
                   verify-revision-is-deployed: true
-                  container-image-name-updates: 'container=dma-staging-task-container,tag=$(cat version_file.txt)'
+                  container-image-name-updates: 'container=dma-staging,tag=$(cat version_file.txt)'
 
 # Orchestrate our job run sequence
 workflows:
