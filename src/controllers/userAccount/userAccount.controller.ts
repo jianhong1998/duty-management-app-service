@@ -6,6 +6,7 @@ import ErrorHandler from '../../service/errorHandler/errorHandler.service';
 import EmployeeService from '../../service/employee/employeeDB.service';
 import UserAccountService from '../../service/userAccount/userAccountDB.service';
 import PasswordUtil from '../../utils/passwordUtil';
+import { UniqueConstraintError } from 'sequelize';
 
 export default class UserAccountController {
     static createUserAccount: RequestHandler<
@@ -36,6 +37,14 @@ export default class UserAccountController {
                 data: createdUser,
             });
         } catch (error) {
+            if (error instanceof UniqueConstraintError) {
+                return ErrorHandler.sendErrorResponse(
+                    res,
+                    409,
+                    error.errors[0].message,
+                );
+            }
+
             const errorMessage = ErrorHandler.getErrorMessage(error);
             ErrorHandler.sendErrorResponse(res, 500, errorMessage);
         }
