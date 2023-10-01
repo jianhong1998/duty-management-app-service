@@ -87,7 +87,7 @@ export default class UserAccountDBModel extends Model<IUserAccount> {
 
         if (Array.isArray(instances)) {
             return instances.map((instance) => {
-                const employee = instance.employeeDBModel.dataValues;
+                const employee = instance.employeeDBModel?.dataValues;
 
                 instance.employee = employee;
                 instance.dataValues.employee = employee;
@@ -97,7 +97,7 @@ export default class UserAccountDBModel extends Model<IUserAccount> {
                 return instance;
             });
         } else {
-            const employee = instances.employeeDBModel.dataValues;
+            const employee = instances.employeeDBModel?.dataValues;
 
             instances.employee = employee;
             instances.dataValues.employee = employee;

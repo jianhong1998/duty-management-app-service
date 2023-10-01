@@ -1,4 +1,10 @@
 require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
+
+const rsca = fs.readFileSync(
+    path.join(__dirname, '../', process.env.AWS_DB_KEY_FILE_PATH || ''),
+);
 
 module.exports = {
     development: {
@@ -44,7 +50,11 @@ module.exports = {
         dialect: 'postgres',
         dialectOptions: {
             socketPath: process.env.AWS_DB_HOST,
+            ssl: {
+                rejectUnauthorized: true,
+                ca: [rsca],
+            },
         },
-        seederStorage: 'sequelize',
+        // seederStorage: 'sequelize',
     },
 };
