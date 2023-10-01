@@ -9,7 +9,7 @@ export default class EmployeeVerificationService {
     public static isIEmployeeUpdate(
         object: unknown,
     ): object is IEmployeeUpdate {
-        if (typeof object !== 'object') {
+        if (typeof object !== 'object' || object === null) {
             return false;
         }
 
@@ -82,7 +82,7 @@ export default class EmployeeVerificationService {
     public static isEmployeeCreation(
         object: unknown,
     ): object is IEmployeeCreation {
-        if (typeof object !== 'object') {
+        if (typeof object !== 'object' || object === null) {
             return false;
         }
 

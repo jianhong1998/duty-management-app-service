@@ -2,7 +2,7 @@ import { Router } from 'express';
 import TimeSlotController from '../../controllers/timeSlot/timeSlot.controller';
 import TimeSlotMiddleware from '../../controllers/timeSlot/timeSlotMiddleware.controller';
 import AuthMiddleware from '../../controllers/auth/authMiddleware.controller';
-import { UserAccountType } from '../../models/userAccount/userAccountType.enum';
+import { UserAccountType } from '../../models/userAccount/userAccount.enum';
 
 const timeSlotRouter = Router();
 

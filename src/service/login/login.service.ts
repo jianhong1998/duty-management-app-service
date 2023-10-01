@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import TokenService from './token.service';
 import EmployeeDBModel from '../../models/employee/employeeDBModel.model';
 import LoginResult from '../../models/auth/loginResult.model';
-import { UserAccountStatus } from '../../models/userAccount/UserAccountStatus.enum';
+import { UserAccountStatus } from '../../models/userAccount/userAccount.enum';
 
 export default class LoginService {
     private static readonly INVALID_CREDENTIAL_MESSAGE =
