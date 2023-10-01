@@ -2,7 +2,7 @@ import { RequestHandler } from 'express';
 import ErrorHandler from '../../service/errorHandler/errorHandler.service';
 import { UserAccountType } from '../../models/userAccount/userAccountType.enum';
 import TokenService from '../../service/login/token.service';
-import UserAccountService from '../../service/userAccount/userAccount.service';
+import UserAccountService from '../../service/userAccount/userAccountDB.service';
 
 export default class AuthMiddleware {
     private static readonly MISSING_TOKEN_ERROR =

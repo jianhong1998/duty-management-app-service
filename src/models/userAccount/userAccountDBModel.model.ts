@@ -6,6 +6,7 @@ import {
     Column,
     CreatedAt,
     DataType,
+    Default,
     ForeignKey,
     Model,
     PrimaryKey,
@@ -17,6 +18,7 @@ import IUserAccount from './userAccount.model';
 import { UserAccountType } from './userAccountType.enum';
 import EmployeeDBModel from '../employee/employeeDBModel.model';
 import IEmployee from '../employee/employee.model';
+import { UserAccountStatus } from './UserAccountStatus.enum';
 
 @Table({
     tableName: 'user_account',
@@ -55,6 +57,18 @@ export default class UserAccountDBModel extends Model<IUserAccount> {
         type: DataType.ENUM(UserAccountType.ADMIN, UserAccountType.USER),
     })
     accountType: UserAccountType;
+
+    @AllowNull(false)
+    @Default(UserAccountStatus.PENDING_APPROVAL)
+    @Column({
+        field: 'account_status',
+        type: DataType.ENUM(
+            UserAccountStatus.ACTIVE,
+            UserAccountStatus.PENDING_APPROVAL,
+            UserAccountStatus.DISABLED,
+        ),
+    })
+    accountStatus: UserAccountStatus;
 
     @CreatedAt
     @AllowNull(false)
