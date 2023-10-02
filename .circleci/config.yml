@@ -73,7 +73,7 @@ jobs:
             - aws-ecs/update-service:
                   cluster-name: 'dma-staging'
                   family: 'dma-staging-task-def'
-                  service-name: 'dma-staging-service-1'
+                  service-name: 'dma-staging-service-2'
                   verify-revision-is-deployed: true
                   container-image-name-updates: 'container=dma-staging,tag=$(cat version_file.txt)'
 
