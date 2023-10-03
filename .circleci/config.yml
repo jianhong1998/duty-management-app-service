@@ -71,9 +71,9 @@ jobs:
                   aws-secret-access-key: AWS_SECRET_KEY
             - set_version
             - aws-ecs/update-service:
-                  cluster-name: 'dma-staging'
+                  cluster-name: 'dma-staging-ecs'
                   family: 'dma-staging-task-def'
-                  service-name: 'dma-staging-service-2'
+                  service-name: 'dma-staging-service'
                   verify-revision-is-deployed: true
                   container-image-name-updates: 'container=dma-staging,tag=$(cat version_file.txt)'
 
