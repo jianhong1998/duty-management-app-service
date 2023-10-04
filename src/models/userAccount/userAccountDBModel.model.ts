@@ -58,12 +58,11 @@ export default class UserAccountDBModel extends Model<IUserAccount> {
     accountType: UserAccountType;
 
     @AllowNull(false)
-    @Default(UserAccountStatus.PENDING_APPROVAL)
+    @Default(UserAccountStatus.ACTIVE)
     @Column({
         field: 'account_status',
         type: DataType.ENUM(
             UserAccountStatus.ACTIVE,
-            UserAccountStatus.PENDING_APPROVAL,
             UserAccountStatus.DISABLED,
         ),
     })

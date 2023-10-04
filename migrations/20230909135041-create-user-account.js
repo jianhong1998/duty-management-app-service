@@ -42,9 +42,9 @@ module.exports = {
                 field: 'account_status',
                 type: Sequelize.ENUM({
                     name: 'enum_user_account_account_status',
-                    values: ['Active', 'Pending Approval', 'Disabled'],
+                    values: ['Active', 'Disabled'],
                 }),
-                defaultValue: 'Pending Approval',
+                defaultValue: 'Active',
             },
             createdAt: {
                 field: 'created_at',
