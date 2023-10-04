@@ -58,12 +58,13 @@ export default class UserAccountDBModel extends Model<IUserAccount> {
     accountType: UserAccountType;
 
     @AllowNull(false)
-    @Default(UserAccountStatus.ACTIVE)
+    @Default(UserAccountStatus.RESETING_PASSWORD)
     @Column({
         field: 'account_status',
         type: DataType.ENUM(
             UserAccountStatus.ACTIVE,
             UserAccountStatus.DISABLED,
+            UserAccountStatus.RESETING_PASSWORD,
         ),
     })
     accountStatus: UserAccountStatus;

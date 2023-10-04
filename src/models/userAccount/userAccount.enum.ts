@@ -6,4 +6,5 @@ export enum UserAccountType {
 export enum UserAccountStatus {
     ACTIVE = 'Active',
     DISABLED = 'Disabled',
+    RESETING_PASSWORD = 'Reseting Password',
 }

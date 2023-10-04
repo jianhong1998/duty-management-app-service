@@ -1,9 +1,9 @@
 import UserAccountService from '../userAccount/userAccountDB.service';
-import bcrypt from 'bcrypt';
 import TokenService from './token.service';
 import EmployeeDBModel from '../../models/employee/employeeDBModel.model';
 import LoginResult from '../../models/auth/loginResult.model';
 import { UserAccountStatus } from '../../models/userAccount/userAccount.enum';
+import PasswordUtil from '../../utils/passwordUtil';
 
 export default class LoginService {
     private static readonly INVALID_CREDENTIAL_MESSAGE =
@@ -29,7 +29,7 @@ export default class LoginService {
             };
         }
 
-        if (!bcrypt.compareSync(password, user.password)) {
+        if (!PasswordUtil.comparePassword(password, user.password)) {
             return {
                 isLoginSuccess: false,
                 message: this.INVALID_CREDENTIAL_MESSAGE,
@@ -42,6 +42,7 @@ export default class LoginService {
             isLoginSuccess: true,
             token,
             name: user.employee.name,
+            accountType: user.accountType,
         };
     }
 }

@@ -56,9 +56,6 @@ export default class UserAccountVerificationService {
         const hasEmailAddress =
             'emailAddress' in object && typeof object.emailAddress === 'string';
 
-        const hasPassword =
-            'password' in object && typeof object.password === 'string';
-
         const hasAccountType =
             'accountType' in object &&
             this.isUserAccountType(object.accountType);
@@ -69,7 +66,6 @@ export default class UserAccountVerificationService {
             hasRole &&
             hasContactNumber &&
             hasEmailAddress &&
-            hasPassword &&
             hasAccountType
         );
     }

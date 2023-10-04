@@ -35,6 +35,7 @@ export default class AuthController {
                             isLoginSuccess: true,
                             token: result.token,
                             name: result.name,
+                            accountType: result.accountType,
                         },
                     });
                 case false:

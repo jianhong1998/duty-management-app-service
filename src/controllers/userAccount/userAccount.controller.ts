@@ -25,12 +25,18 @@ export default class UserAccountController {
                 contactNumber: creationData.contactNumber,
             });
 
+            const generatedPassword = PasswordUtil.generateNewPassword(10);
+            const hashedPassword =
+                PasswordUtil.encryptPassword(generatedPassword);
+
             const createdUser = await UserAccountService.createUserAccount({
                 employeeId,
                 emailAddress: creationData.emailAddress,
-                password: PasswordUtil.encryptPassword(creationData.password),
+                password: hashedPassword,
                 accountType: creationData.accountType,
             });
+
+            console.log('User account created, password: ', generatedPassword);
 
             res.status(200).send({
                 isSuccess: true,
