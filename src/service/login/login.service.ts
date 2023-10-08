@@ -4,6 +4,7 @@ import EmployeeDBModel from '../../models/employee/employeeDBModel.model';
 import LoginResult from '../../models/auth/loginResult.model';
 import { UserAccountStatus } from '../../models/userAccount/userAccount.enum';
 import PasswordUtil from '../../utils/passwordUtil';
+import { Op } from 'sequelize';
 
 export default class LoginService {
     private static readonly INVALID_CREDENTIAL_MESSAGE =
@@ -13,7 +14,12 @@ export default class LoginService {
         const user = await UserAccountService.getUserAccount(
             {
                 emailAddress: email,
-                accountStatus: UserAccountStatus.ACTIVE,
+                accountStatus: {
+                    [Op.or]: [
+                        UserAccountStatus.ACTIVE,
+                        UserAccountStatus.RESETING_PASSWORD,
+                    ],
+                },
             },
             [
                 {
@@ -43,6 +49,7 @@ export default class LoginService {
             token,
             name: user.employee.name,
             accountType: user.accountType,
+            accountStatus: user.accountStatus,
         };
     }
 }

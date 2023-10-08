@@ -1,15 +1,10 @@
 import Prettify from '../prettifyType/prettify.type';
-import { UserAccountType } from '../userAccount/userAccount.enum';
+import { ILoginFailureResult, ILoginSuccessResult } from './loginResult.model';
 
-interface ILoginSuccessResponse {
-    isLoginSuccess: true;
-    token: string;
-    name: string;
-    accountType: UserAccountType;
-}
+interface ILoginSuccessResponse extends ILoginSuccessResult {}
 
-interface ILoginFailureResponse {
-    isLoginSuccess: false;
+interface ILoginFailureResponse
+    extends Pick<ILoginFailureResult, 'isLoginSuccess'> {
     errorMessage: string;
     statusCode: number;
 }
