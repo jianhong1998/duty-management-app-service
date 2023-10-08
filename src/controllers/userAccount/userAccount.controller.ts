@@ -1,6 +1,5 @@
 import { RequestHandler } from 'express';
 import StandardResponse from '../../models/response/standardResponse.model';
-import IUserAccount from '../../models/userAccount/userAccount.model';
 import IUserRegisterFormData from '../../models/userAccount/userRegisterFormData.model';
 import ErrorHandler from '../../service/errorHandler/errorHandler.service';
 import EmployeeService from '../../service/employee/employeeDB.service';
@@ -11,26 +10,27 @@ import { UniqueConstraintError } from 'sequelize';
 export default class UserAccountController {
     static createUserAccount: RequestHandler<
         undefined,
-        StandardResponse<IUserAccount>,
+        StandardResponse<string>,
         IUserRegisterFormData,
         undefined
     > = async (req, res) => {
         const creationData = req.body;
 
         try {
-            const { id: employeeId } = await EmployeeService.createEmployee({
-                name: creationData.name,
-                employmentType: creationData.employmentType,
-                role: creationData.role,
-                contactNumber: creationData.contactNumber,
-            });
+            const { id: createdEmployeeId, name } =
+                await EmployeeService.createEmployee({
+                    name: creationData.name,
+                    employmentType: creationData.employmentType,
+                    role: creationData.role,
+                    contactNumber: creationData.contactNumber,
+                });
 
             const generatedPassword = PasswordUtil.generateNewPassword(10);
             const hashedPassword =
                 PasswordUtil.encryptPassword(generatedPassword);
 
-            const createdUser = await UserAccountService.createUserAccount({
-                employeeId,
+            await UserAccountService.createUserAccount({
+                employeeId: createdEmployeeId,
                 emailAddress: creationData.emailAddress,
                 password: hashedPassword,
                 accountType: creationData.accountType,
@@ -40,7 +40,7 @@ export default class UserAccountController {
 
             res.status(200).send({
                 isSuccess: true,
-                data: createdUser,
+                data: `Successfully created employee and user account for '${name}'.`,
             });
         } catch (error) {
             if (error instanceof UniqueConstraintError) {
