@@ -15,7 +15,8 @@ export default class UserAccountMiddleware {
         const body = req.body;
 
         if (
-            req.method.toLowerCase() === 'post' &&
+            (req.method.toLowerCase() === 'post' ||
+                req.method.toLowerCase() === 'put') &&
             !UserAccountVerificationService.isUserRegisterFormData(body)
         ) {
             return ErrorHandler.sendErrorResponse(

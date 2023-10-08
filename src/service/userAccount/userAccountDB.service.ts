@@ -9,12 +9,12 @@ export default class UserAccountService {
         condition: WhereOptions<UserAccountDBModel>,
         include?: Includeable[],
     ): Promise<IUserAccount | null> {
-        const userAccounts = await UserAccountDBModel.findOne({
+        const userAccount = await UserAccountDBModel.findOne({
             where: condition,
             include,
         });
 
-        return userAccounts?.dataValues || null;
+        return userAccount?.dataValues || null;
     }
 
     static async createUserAccount(
@@ -28,5 +28,18 @@ export default class UserAccountService {
         }
 
         return createdUserAccount.dataValues;
+    }
+
+    static async updateUserAccounts(
+        condition: WhereOptions<UserAccountDBModel>,
+        data: Partial<IUserAccount>,
+    ): Promise<IUserAccount[]> {
+        await UserAccountDBModel.update(data, { where: condition });
+
+        const userAccounts = await UserAccountDBModel.findAll({
+            where: condition,
+        });
+
+        return userAccounts.map((userAccount) => userAccount.dataValues);
     }
 }
