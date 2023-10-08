@@ -1,14 +1,18 @@
 import Prettify from '../prettifyType/prettify.type';
-import { UserAccountType } from '../userAccount/userAccount.enum';
+import {
+    UserAccountStatus,
+    UserAccountType,
+} from '../userAccount/userAccount.enum';
 
-interface ILoginSuccessResult {
+export interface ILoginSuccessResult {
     isLoginSuccess: true;
     token: string;
     name: string;
     accountType: UserAccountType;
+    accountStatus: UserAccountStatus;
 }
 
-interface ILoginFailureResult {
+export interface ILoginFailureResult {
     isLoginSuccess: false;
     message: string;
 }
