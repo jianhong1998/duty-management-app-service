@@ -1,7 +1,11 @@
+import Prettify from '../prettifyType/prettify.type';
+import { UserAccountType } from '../userAccount/userAccount.enum';
+
 interface ILoginSuccessResponse {
     isLoginSuccess: true;
     token: string;
     name: string;
+    accountType: UserAccountType;
 }
 
 interface ILoginFailureResponse {
@@ -10,6 +14,6 @@ interface ILoginFailureResponse {
     statusCode: number;
 }
 
-type ILoginResponse = ILoginSuccessResponse | ILoginFailureResponse;
+type ILoginResponse = Prettify<ILoginSuccessResponse | ILoginFailureResponse>;
 
 export default ILoginResponse;

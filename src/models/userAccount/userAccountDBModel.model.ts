@@ -58,13 +58,13 @@ export default class UserAccountDBModel extends Model<IUserAccount> {
     accountType: UserAccountType;
 
     @AllowNull(false)
-    @Default(UserAccountStatus.PENDING_APPROVAL)
+    @Default(UserAccountStatus.RESETING_PASSWORD)
     @Column({
         field: 'account_status',
         type: DataType.ENUM(
             UserAccountStatus.ACTIVE,
-            UserAccountStatus.PENDING_APPROVAL,
             UserAccountStatus.DISABLED,
+            UserAccountStatus.RESETING_PASSWORD,
         ),
     })
     accountStatus: UserAccountStatus;
