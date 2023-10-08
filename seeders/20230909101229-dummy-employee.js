@@ -45,11 +45,14 @@ module.exports = {
                 role: 'Service Crew',
                 contact_number: 165555555,
             },
+        ]);
+        await queryInterface.bulkInsert('employee', [
             {
                 name: 'Jian Hong',
                 employment_type: 'Part Time',
                 role: 'Service Crew',
                 contact_number: 166666666,
+                is_active: false,
             },
         ]);
     },

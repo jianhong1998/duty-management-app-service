@@ -4,14 +4,26 @@ import UserAccountMiddleware from '../../controllers/userAccount/userAccountMidd
 import AuthMiddleware from '../../controllers/auth/authMiddleware.controller';
 import { UserAccountType } from '../../models/userAccount/userAccount.enum';
 
-const userAccountRouer = Router();
+const userAccountRouter = Router();
 
-userAccountRouer.use(UserAccountMiddleware.verifyRequestBody);
+userAccountRouter.use(UserAccountMiddleware.verifyRequestBody);
 
-userAccountRouer.post(
+userAccountRouter.post(
     '/',
     AuthMiddleware.authorized([UserAccountType.ADMIN]),
     UserAccountController.createUserAccount,
 );
 
-export default userAccountRouer;
+userAccountRouter.get(
+    '/employee/:employeeId',
+    AuthMiddleware.authorized([UserAccountType.ADMIN]),
+    UserAccountController.getUserAccountByEmployeeId,
+);
+
+userAccountRouter.put(
+    '/employee/:employeeId',
+    AuthMiddleware.authorized([UserAccountType.ADMIN]),
+    UserAccountController.updateUserAccount,
+);
+
+export default userAccountRouter;
