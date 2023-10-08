@@ -131,3 +131,5 @@ dist
 
 *.sh
 *.pem
+
+!ap-southeast-1-bundle.pem

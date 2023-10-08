@@ -1,14 +1,22 @@
-interface ILoginSuccessResult {
+import Prettify from '../prettifyType/prettify.type';
+import {
+    UserAccountStatus,
+    UserAccountType,
+} from '../userAccount/userAccount.enum';
+
+export interface ILoginSuccessResult {
     isLoginSuccess: true;
     token: string;
     name: string;
+    accountType: UserAccountType;
+    accountStatus: UserAccountStatus;
 }
 
-interface ILoginFailureResult {
+export interface ILoginFailureResult {
     isLoginSuccess: false;
     message: string;
 }
 
-type LoginResult = ILoginSuccessResult | ILoginFailureResult;
+type LoginResult = Prettify<ILoginSuccessResult | ILoginFailureResult>;
 
 export default LoginResult;

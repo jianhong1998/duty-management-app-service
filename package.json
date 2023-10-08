@@ -5,6 +5,7 @@
     "main": "app.js",
     "scripts": {
         "dev": "nodemon",
+        "start": "npm run db:migrate && node dist/src/app.js",
         "test": "jest",
         "build": "npx tsc",
         "start:dev": "npm run db:migrate:undo:all && npm run db:migrate && npm run db:seed && nodemon",

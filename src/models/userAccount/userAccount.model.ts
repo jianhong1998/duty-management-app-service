@@ -1,6 +1,6 @@
 import IEmployee from '../employee/employee.model';
 import EmployeeDBModel from '../employee/employeeDBModel.model';
-import { UserAccountType } from './userAccountType.enum';
+import { UserAccountStatus, UserAccountType } from './userAccount.enum';
 
 export default interface IUserAccount {
     id: number;
@@ -8,8 +8,20 @@ export default interface IUserAccount {
     emailAddress: string;
     password: string;
     accountType: UserAccountType;
+    accountStatus: UserAccountStatus;
     createdAt?: Date;
     updatedAt?: Date;
     employeeDBModel?: EmployeeDBModel;
     employee?: IEmployee;
 }
+
+export interface IUserAccountCreation
+    extends Omit<
+        IUserAccount,
+        | 'id'
+        | 'accountStatus'
+        | 'createdAt'
+        | 'updatedAt'
+        | 'employee'
+        | 'employeeDBModel'
+    > {}

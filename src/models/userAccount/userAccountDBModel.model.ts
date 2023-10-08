@@ -6,6 +6,7 @@ import {
     Column,
     CreatedAt,
     DataType,
+    Default,
     ForeignKey,
     Model,
     PrimaryKey,
@@ -14,7 +15,7 @@ import {
     UpdatedAt,
 } from 'sequelize-typescript';
 import IUserAccount from './userAccount.model';
-import { UserAccountType } from './userAccountType.enum';
+import { UserAccountStatus, UserAccountType } from './userAccount.enum';
 import EmployeeDBModel from '../employee/employeeDBModel.model';
 import IEmployee from '../employee/employee.model';
 
@@ -55,6 +56,18 @@ export default class UserAccountDBModel extends Model<IUserAccount> {
         type: DataType.ENUM(UserAccountType.ADMIN, UserAccountType.USER),
     })
     accountType: UserAccountType;
+
+    @AllowNull(false)
+    @Default(UserAccountStatus.RESETING_PASSWORD)
+    @Column({
+        field: 'account_status',
+        type: DataType.ENUM(
+            UserAccountStatus.ACTIVE,
+            UserAccountStatus.DISABLED,
+            UserAccountStatus.RESETING_PASSWORD,
+        ),
+    })
+    accountStatus: UserAccountStatus;
 
     @CreatedAt
     @AllowNull(false)

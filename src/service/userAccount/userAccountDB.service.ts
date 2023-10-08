@@ -1,5 +1,7 @@
 import { Includeable, WhereOptions } from 'sequelize';
-import IUserAccount from '../../models/userAccount/userAccount.model';
+import IUserAccount, {
+    IUserAccountCreation,
+} from '../../models/userAccount/userAccount.model';
 import UserAccountDBModel from '../../models/userAccount/userAccountDBModel.model';
 
 export default class UserAccountService {
@@ -13,5 +15,18 @@ export default class UserAccountService {
         });
 
         return userAccounts?.dataValues || null;
+    }
+
+    static async createUserAccount(
+        userAccountCreation: IUserAccountCreation,
+    ): Promise<IUserAccount> {
+        const createdUserAccount =
+            await UserAccountDBModel.create(userAccountCreation);
+
+        if (createdUserAccount === null) {
+            throw new Error('createdUserAccount is null');
+        }
+
+        return createdUserAccount.dataValues;
     }
 }

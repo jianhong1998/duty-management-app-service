@@ -19,6 +19,7 @@ module.exports = {
                 password:
                     '$2a$15$Hgu9t4HDixhNih.mLa3lVO9z.wmPTyIFN6A9xyIkmfuPk2/vAuMea',
                 account_type: 'Admin',
+                account_status: 'Active',
             },
             {
                 employee_id: 2,
@@ -26,6 +27,7 @@ module.exports = {
                 password:
                     '$2a$15$Hgu9t4HDixhNih.mLa3lVO9z.wmPTyIFN6A9xyIkmfuPk2/vAuMea',
                 account_type: 'User',
+                account_status: 'Active',
             },
             {
                 employee_id: 3,
@@ -33,6 +35,7 @@ module.exports = {
                 password:
                     '$2a$15$Hgu9t4HDixhNih.mLa3lVO9z.wmPTyIFN6A9xyIkmfuPk2/vAuMea',
                 account_type: 'User',
+                account_status: 'Active',
             },
             {
                 employee_id: 4,
@@ -40,6 +43,7 @@ module.exports = {
                 password:
                     '$2a$15$Hgu9t4HDixhNih.mLa3lVO9z.wmPTyIFN6A9xyIkmfuPk2/vAuMea',
                 account_type: 'User',
+                account_status: 'Active',
             },
             {
                 employee_id: 5,
@@ -47,6 +51,7 @@ module.exports = {
                 password:
                     '$2a$15$Hgu9t4HDixhNih.mLa3lVO9z.wmPTyIFN6A9xyIkmfuPk2/vAuMea',
                 account_type: 'User',
+                account_status: 'Active',
             },
             {
                 employee_id: 6,
@@ -54,6 +59,7 @@ module.exports = {
                 password:
                     '$2a$15$Hgu9t4HDixhNih.mLa3lVO9z.wmPTyIFN6A9xyIkmfuPk2/vAuMea',
                 account_type: 'User',
+                account_status: 'Active',
             },
         ]);
     },

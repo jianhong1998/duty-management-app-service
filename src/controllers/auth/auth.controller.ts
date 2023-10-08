@@ -31,11 +31,7 @@ export default class AuthController {
                 case true:
                     return res.status(200).send({
                         isSuccess: true,
-                        data: {
-                            isLoginSuccess: true,
-                            token: result.token,
-                            name: result.name,
-                        },
+                        data: result,
                     });
                 case false:
                     return ErrorHandler.sendErrorResponse(

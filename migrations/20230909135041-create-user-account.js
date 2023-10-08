@@ -37,6 +37,15 @@ module.exports = {
                     values: ['Admin', 'User'],
                 }),
             },
+            accountStatus: {
+                allowNull: false,
+                field: 'account_status',
+                type: Sequelize.ENUM({
+                    name: 'enum_user_account_account_status',
+                    values: ['Active', 'Disabled', 'Reseting Password'],
+                }),
+                defaultValue: 'Reseting Password',
+            },
             createdAt: {
                 field: 'created_at',
                 allowNull: false,
@@ -55,6 +64,9 @@ module.exports = {
         await queryInterface.dropTable('user_account');
         await queryInterface.sequelize.query(
             'DROP TYPE IF EXISTS "enum_user_account_account_type"',
+        );
+        await queryInterface.sequelize.query(
+            'DROP TYPE IF EXISTS "enum_user_account_account_status"',
         );
     },
 };
