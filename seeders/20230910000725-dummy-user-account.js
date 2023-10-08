@@ -59,7 +59,7 @@ module.exports = {
                 password:
                     '$2a$15$Hgu9t4HDixhNih.mLa3lVO9z.wmPTyIFN6A9xyIkmfuPk2/vAuMea',
                 account_type: 'User',
-                account_status: 'Active',
+                account_status: 'Disabled',
             },
         ]);
     },
