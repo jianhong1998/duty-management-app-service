@@ -1,0 +1,5 @@
+{
+    "subject": "DMA - User Account Created Successfully",
+    "html": "<div>Hello {{name}},<br><br>Welcome to join Seo Ra Bul Korean Restaurant, hope you enjoy your journey with us. Your account for Duty Management Application has been successfully created. Here is your password <b style=\"color:red\">{{password}}</b>. Please do not share with others.<br><br><br>Regards,<br>Team DMA</div>",
+    "variables": ["name", "password"]
+}
