@@ -1,4 +1,4 @@
-import { WhereOptions } from 'sequelize';
+import { Transaction, WhereOptions } from 'sequelize';
 import IEmployee, {
     IEmployeeCreation,
     IEmployeeUpdate,
@@ -40,15 +40,21 @@ export default class EmployeeService {
      */
     public static async createEmployee(
         employeeDetail: IEmployeeCreation,
+        transaction?: Transaction,
     ): Promise<IEmployee> {
         const { name, employmentType, role, contactNumber } = employeeDetail;
 
-        const newEmployee = await EmployeeDBModel.create({
-            name,
-            employmentType,
-            role,
-            contactNumber,
-        });
+        const newEmployee = await EmployeeDBModel.create(
+            {
+                name,
+                employmentType,
+                role,
+                contactNumber,
+            },
+            {
+                transaction,
+            },
+        );
 
         return newEmployee.dataValues;
     }
@@ -62,9 +68,11 @@ export default class EmployeeService {
     public static async updateEmployees(
         condition: WhereOptions<IEmployee>,
         data: IEmployeeUpdate,
+        transaction?: Transaction,
     ): Promise<IEmployee[]> {
         await EmployeeDBModel.update(data, {
             where: condition,
+            transaction,
         });
 
         const employees = await this.getEmployees(condition);
@@ -120,6 +128,7 @@ export default class EmployeeService {
 
     public static async deleteEmployees(
         condition: WhereOptions<IEmployee>,
+        transaction?: Transaction,
     ): Promise<IEmployee[]> {
         let employees = await this.getEmployees(condition);
 
@@ -131,9 +140,13 @@ export default class EmployeeService {
             }
         }
 
-        employees = await this.updateEmployees(condition, {
-            isActive: false,
-        });
+        employees = await this.updateEmployees(
+            condition,
+            {
+                isActive: false,
+            },
+            transaction,
+        );
 
         return employees;
     }
@@ -170,7 +183,6 @@ export default class EmployeeService {
             compareContactNumber &&
             employee1.contactNumber !== employee2.contactNumber
         ) {
-            console.log('contact number');
             return false;
         }
 

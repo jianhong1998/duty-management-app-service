@@ -13,6 +13,9 @@ import {
 import IUpdateUserFormData from '../../models/userAccount/updateUserFormData.model';
 import NumberChecker from '../../utils/numberChecker';
 import EmployeeDBModel from '../../models/employee/employeeDBModel.model';
+import db from '../../sequelize/sequelize';
+import EmailUtil from '../../utils/email/emailUtil';
+import EmailTemplateType from '../../utils/email/emailTemplateType.enum';
 
 export default class UserAccountController {
     static getUserAccountByEmployeeId: RequestHandler<
@@ -84,33 +87,67 @@ export default class UserAccountController {
     > = async (req, res) => {
         const creationData = req.body;
 
+        const transaction = await db.getInstance().transaction();
+
         try {
+            if (
+                await UserAccountService.isEmailAddressRegistered(
+                    creationData.emailAddress,
+                )
+            ) {
+                return ErrorHandler.sendErrorResponse(
+                    res,
+                    409,
+                    'Email address is already being registered.',
+                );
+            }
+
             const { id: createdEmployeeId, name } =
-                await EmployeeService.createEmployee({
-                    name: creationData.name,
-                    employmentType: creationData.employmentType,
-                    role: creationData.role,
-                    contactNumber: creationData.contactNumber,
-                });
+                await EmployeeService.createEmployee(
+                    {
+                        name: creationData.name,
+                        employmentType: creationData.employmentType,
+                        role: creationData.role,
+                        contactNumber: creationData.contactNumber,
+                    },
+                    transaction,
+                );
 
             const generatedPassword = PasswordUtil.generateNewPassword(10);
             const hashedPassword =
                 PasswordUtil.encryptPassword(generatedPassword);
 
-            await UserAccountService.createUserAccount({
-                employeeId: createdEmployeeId,
-                emailAddress: creationData.emailAddress,
-                password: hashedPassword,
-                accountType: creationData.accountType,
-            });
+            const createdUserAccount =
+                await UserAccountService.createUserAccount(
+                    {
+                        employeeId: createdEmployeeId,
+                        emailAddress: creationData.emailAddress,
+                        password: hashedPassword,
+                        accountType: creationData.accountType,
+                    },
+                    transaction,
+                );
 
-            console.log('User account created, password: ', generatedPassword);
+            const emailSendingResult = await EmailUtil.sendEmail(
+                createdUserAccount.emailAddress,
+                EmailTemplateType.CREATE_ACCOUNT,
+                {
+                    name,
+                    password: generatedPassword,
+                },
+            );
+
+            console.log(emailSendingResult);
+
+            await transaction.commit();
 
             res.status(200).send({
                 isSuccess: true,
                 data: `Successfully created employee and user account for '${name}'.`,
             });
         } catch (error) {
+            await transaction.rollback();
+
             if (error instanceof UniqueConstraintError) {
                 return ErrorHandler.sendErrorResponse(
                     res,
@@ -141,6 +178,8 @@ export default class UserAccountController {
         }
 
         const employeeId = Number.parseInt(employeeIdInString);
+
+        const transaction = await db.getInstance().transaction();
 
         try {
             const employees = await EmployeeService.getEmployees({
@@ -214,6 +253,7 @@ export default class UserAccountController {
                     employmentType,
                     role,
                 },
+                transaction,
             );
 
             const updatedUserAccounts =
@@ -225,26 +265,21 @@ export default class UserAccountController {
                         emailAddress,
                         accountType,
                     },
+                    transaction,
                 );
 
             if (updatedEmployees.length !== 1) {
-                return ErrorHandler.sendErrorResponse(
-                    res,
-                    500,
-                    'Employee is not updated',
-                );
+                throw new Error('Employee is not updated');
             }
 
             if (updatedUserAccounts.length !== 1) {
-                return ErrorHandler.sendErrorResponse(
-                    res,
-                    500,
-                    'User account is not updated',
-                );
+                throw new Error('User account is not updated');
             }
 
             const updatedEmployee = updatedEmployees[0];
             const updatedUserAccount = updatedUserAccounts[0];
+
+            await transaction.commit();
 
             res.status(200).send({
                 isSuccess: true,
@@ -258,6 +293,8 @@ export default class UserAccountController {
                 },
             });
         } catch (error) {
+            await transaction.rollback();
+
             const errorMessage = ErrorHandler.getErrorMessage(error);
 
             return ErrorHandler.sendErrorResponse(res, 500, errorMessage);
