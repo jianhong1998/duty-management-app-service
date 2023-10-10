@@ -1,4 +1,4 @@
-import { Includeable, WhereOptions } from 'sequelize';
+import { Includeable, Transaction, WhereOptions } from 'sequelize';
 import IUserAccount, {
     IUserAccountCreation,
 } from '../../models/userAccount/userAccount.model';
@@ -19,9 +19,12 @@ export default class UserAccountService {
 
     static async createUserAccount(
         userAccountCreation: IUserAccountCreation,
+        transaction?: Transaction,
     ): Promise<IUserAccount> {
-        const createdUserAccount =
-            await UserAccountDBModel.create(userAccountCreation);
+        const createdUserAccount = await UserAccountDBModel.create(
+            userAccountCreation,
+            { transaction },
+        );
 
         if (createdUserAccount === null) {
             throw new Error('createdUserAccount is null');
@@ -33,13 +36,29 @@ export default class UserAccountService {
     static async updateUserAccounts(
         condition: WhereOptions<UserAccountDBModel>,
         data: Partial<IUserAccount>,
+        transaction?: Transaction,
     ): Promise<IUserAccount[]> {
-        await UserAccountDBModel.update(data, { where: condition });
+        await UserAccountDBModel.update(data, {
+            where: condition,
+            transaction,
+        });
 
         const userAccounts = await UserAccountDBModel.findAll({
             where: condition,
         });
 
         return userAccounts.map((userAccount) => userAccount.dataValues);
+    }
+
+    static async isEmailAddressRegistered(
+        emailAddress: string,
+    ): Promise<boolean> {
+        return (
+            (await UserAccountDBModel.count({
+                where: {
+                    emailAddress,
+                },
+            })) > 0
+        );
     }
 }
