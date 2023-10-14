@@ -26,28 +26,20 @@ export interface IEmployeeCreation {
     contactNumber: number;
 }
 
-export interface IEmployeeUpdate extends Partial<IEmployee> {
-    // name?: string;
-    // employmentType?: EmploymentType;
-    // role?: EmployeeRole;
-    // contactNumber?: number;
-    // isActive?: boolean;
-    // monAvailabilityTimeSlotId?: number | null;
-    // tueAvailabilityTimeSlotId?: number | null;
-    // wedAvailabilityTimeSlotId?: number | null;
-    // thuAvailabilityTimeSlotId?: number | null;
-    // friAvailabilityTimeSlotId?: number | null;
-    // satAvailabilityTimeSlotId?: number | null;
-    // sunAvailabilityTimeSlotId?: number | null;
-}
+export interface IEmployeeUpdate extends Partial<IEmployee> {}
 
-export interface IEmployeeResponse {
-    id: number;
-    name: string;
-    employmentType: EmploymentType;
-    role: EmployeeRole;
-    contactNumber: number;
-    isActive: boolean;
+export interface IEmployeeResponse
+    extends Pick<
+        IEmployee,
+        | 'id'
+        | 'name'
+        | 'employmentType'
+        | 'role'
+        | 'contactNumber'
+        | 'isActive'
+        | 'createdAt'
+        | 'updatedAt'
+    > {
     weeklyAvailabilityTimeSlotIds: {
         mon: number | null;
         tue: number | null;
@@ -57,6 +49,4 @@ export interface IEmployeeResponse {
         sat: number | null;
         sun: number | null;
     };
-    createdAt?: Date;
-    updatedAt?: Date;
 }

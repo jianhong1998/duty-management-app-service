@@ -1,8 +1,12 @@
 import { RequestHandler } from 'express';
 import ErrorHandler from '../../service/errorHandler/errorHandler.service';
-import { UserAccountType } from '../../models/userAccount/userAccount.enum';
+import {
+    UserAccountStatus,
+    UserAccountType,
+} from '../../models/userAccount/userAccount.enum';
 import TokenService from '../../service/login/token.service';
 import UserAccountService from '../../service/userAccount/userAccountDB.service';
+import { Op } from 'sequelize';
 
 export default class AuthMiddleware {
     private static readonly MISSING_TOKEN_ERROR =
@@ -49,6 +53,12 @@ export default class AuthMiddleware {
 
             const user = await UserAccountService.getUserAccount({
                 id: userId,
+                accountStatus: {
+                    [Op.or]: [
+                        UserAccountStatus.ACTIVE,
+                        UserAccountStatus.RESETING_PASSWORD,
+                    ],
+                },
             });
 
             if (user === null) {
