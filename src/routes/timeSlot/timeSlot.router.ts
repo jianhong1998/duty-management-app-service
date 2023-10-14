@@ -5,7 +5,9 @@ import TimeSlotController from '../../controllers/timeSlot/timeSlot.controller';
 
 const timeSlotRouter = Router();
 
-timeSlotRouter.use(AuthMiddleware.authorized([UserAccountType.USER]));
+timeSlotRouter.use(
+    AuthMiddleware.authorized([UserAccountType.USER, UserAccountType.ADMIN]),
+);
 
 timeSlotRouter.get('/', TimeSlotController.getAllTimeSlots);
 
