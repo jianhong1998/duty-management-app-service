@@ -77,52 +77,6 @@ export default class EmployeeService {
 
         const employees = await this.getEmployees(condition);
 
-        for (const employee of employees) {
-            const compareEmployee: IEmployee = {
-                id: 0,
-                name: data.name || employee.name,
-                role: data.role || employee.role,
-                employmentType: data.employmentType || employee.employmentType,
-                isActive: data.isActive || employee.isActive,
-                contactNumber: data.contactNumber || employee.contactNumber,
-                monAvailabilityTimeSlotId:
-                    data.monAvailabilityTimeSlotId ||
-                    employee.monAvailabilityTimeSlotId,
-                tueAvailabilityTimeSlotId:
-                    data.tueAvailabilityTimeSlotId ||
-                    employee.tueAvailabilityTimeSlotId,
-                wedAvailabilityTimeSlotId:
-                    data.wedAvailabilityTimeSlotId ||
-                    employee.wedAvailabilityTimeSlotId,
-                thuAvailabilityTimeSlotId:
-                    data.thuAvailabilityTimeSlotId ||
-                    employee.thuAvailabilityTimeSlotId,
-                friAvailabilityTimeSlotId:
-                    data.friAvailabilityTimeSlotId ||
-                    employee.friAvailabilityTimeSlotId,
-                satAvailabilityTimeSlotId:
-                    data.satAvailabilityTimeSlotId ||
-                    employee.satAvailabilityTimeSlotId,
-                sunAvailabilityTimeSlotId:
-                    data.sunAvailabilityTimeSlotId ||
-                    employee.sunAvailabilityTimeSlotId,
-            };
-
-            const result = this.compareEmployee({
-                employee1: employee,
-                employee2: compareEmployee,
-                compareName: true,
-                compareContactNumber: true,
-                compareEmploymentType: true,
-                compareIsActive: true,
-                compareRole: true,
-            });
-
-            if (result) {
-                throw new Error(`Employee ${employee.id} is not changed!`);
-            }
-        }
-
         return employees;
     }
 
@@ -151,110 +105,110 @@ export default class EmployeeService {
         return employees;
     }
 
-    protected static compareEmployee(options: {
-        employee1: IEmployee;
-        employee2: IEmployee;
-        compareId?: boolean;
-        compareName?: boolean;
-        compareEmploymentType?: boolean;
-        compareRole?: boolean;
-        compareContactNumber?: boolean;
-        compareIsActive?: boolean;
-        compareAvailabilityTimeSlotIds?: boolean;
-    }): boolean {
-        const {
-            employee1,
-            employee2,
-            compareContactNumber,
-            compareEmploymentType,
-            compareId,
-            compareIsActive,
-            compareName,
-            compareRole,
-            compareAvailabilityTimeSlotIds,
-        } = options;
+    // protected static compareEmployee(options: {
+    //     employee1: IEmployee;
+    //     employee2: IEmployee;
+    //     compareId?: boolean;
+    //     compareName?: boolean;
+    //     compareEmploymentType?: boolean;
+    //     compareRole?: boolean;
+    //     compareContactNumber?: boolean;
+    //     compareIsActive?: boolean;
+    //     compareAvailabilityTimeSlotIds?: boolean;
+    // }): boolean {
+    //     const {
+    //         employee1,
+    //         employee2,
+    //         compareContactNumber,
+    //         compareEmploymentType,
+    //         compareId,
+    //         compareIsActive,
+    //         compareName,
+    //         compareRole,
+    //         compareAvailabilityTimeSlotIds,
+    //     } = options;
 
-        if (compareId && employee1.id !== employee2.id) {
-            return false;
-        }
+    //     if (compareId && employee1.id !== employee2.id) {
+    //         return false;
+    //     }
 
-        if (
-            compareContactNumber &&
-            employee1.contactNumber !== employee2.contactNumber
-        ) {
-            return false;
-        }
+    //     if (
+    //         compareContactNumber &&
+    //         employee1.contactNumber !== employee2.contactNumber
+    //     ) {
+    //         return false;
+    //     }
 
-        if (
-            compareEmploymentType &&
-            employee1.employmentType !== employee2.employmentType
-        ) {
-            return false;
-        }
+    //     if (
+    //         compareEmploymentType &&
+    //         employee1.employmentType !== employee2.employmentType
+    //     ) {
+    //         return false;
+    //     }
 
-        if (compareIsActive && employee1.isActive !== employee2.isActive) {
-            return false;
-        }
+    //     if (compareIsActive && employee1.isActive !== employee2.isActive) {
+    //         return false;
+    //     }
 
-        if (compareName && employee1.name !== employee2.name) {
-            return false;
-        }
+    //     if (compareName && employee1.name !== employee2.name) {
+    //         return false;
+    //     }
 
-        if (compareRole && employee1.role !== employee2.role) {
-            return false;
-        }
+    //     if (compareRole && employee1.role !== employee2.role) {
+    //         return false;
+    //     }
 
-        if (compareAvailabilityTimeSlotIds) {
-            if (
-                employee1.monAvailabilityTimeSlotId !==
-                employee2.monAvailabilityTimeSlotId
-            ) {
-                return false;
-            }
+    //     if (compareAvailabilityTimeSlotIds) {
+    //         if (
+    //             employee1.monAvailabilityTimeSlotId !==
+    //             employee2.monAvailabilityTimeSlotId
+    //         ) {
+    //             return false;
+    //         }
 
-            if (
-                employee1.tueAvailabilityTimeSlotId !==
-                employee2.tueAvailabilityTimeSlotId
-            ) {
-                return false;
-            }
+    //         if (
+    //             employee1.tueAvailabilityTimeSlotId !==
+    //             employee2.tueAvailabilityTimeSlotId
+    //         ) {
+    //             return false;
+    //         }
 
-            if (
-                employee1.wedAvailabilityTimeSlotId !==
-                employee2.wedAvailabilityTimeSlotId
-            ) {
-                return false;
-            }
+    //         if (
+    //             employee1.wedAvailabilityTimeSlotId !==
+    //             employee2.wedAvailabilityTimeSlotId
+    //         ) {
+    //             return false;
+    //         }
 
-            if (
-                employee1.thuAvailabilityTimeSlotId !==
-                employee2.thuAvailabilityTimeSlotId
-            ) {
-                return false;
-            }
+    //         if (
+    //             employee1.thuAvailabilityTimeSlotId !==
+    //             employee2.thuAvailabilityTimeSlotId
+    //         ) {
+    //             return false;
+    //         }
 
-            if (
-                employee1.friAvailabilityTimeSlotId !==
-                employee2.friAvailabilityTimeSlotId
-            ) {
-                return false;
-            }
+    //         if (
+    //             employee1.friAvailabilityTimeSlotId !==
+    //             employee2.friAvailabilityTimeSlotId
+    //         ) {
+    //             return false;
+    //         }
 
-            if (
-                employee1.satAvailabilityTimeSlotId !==
-                employee2.satAvailabilityTimeSlotId
-            ) {
-                return false;
-            }
+    //         if (
+    //             employee1.satAvailabilityTimeSlotId !==
+    //             employee2.satAvailabilityTimeSlotId
+    //         ) {
+    //             return false;
+    //         }
 
-            if (
-                employee1.sunAvailabilityTimeSlotId !==
-                employee2.sunAvailabilityTimeSlotId
-            ) {
-                return false;
-            }
-        }
+    //         if (
+    //             employee1.sunAvailabilityTimeSlotId !==
+    //             employee2.sunAvailabilityTimeSlotId
+    //         ) {
+    //             return false;
+    //         }
+    //     }
 
-        return true;
-    }
+    //     return true;
+    // }
 }
