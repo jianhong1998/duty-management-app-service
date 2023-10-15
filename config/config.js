@@ -54,7 +54,9 @@ module.exports = {
                 rejectUnauthorized: true,
                 ca: [rsca],
             },
+            useUTC: false,
         },
+        timezone: '+08:00',
         // seederStorage: 'sequelize',
     },
 };
