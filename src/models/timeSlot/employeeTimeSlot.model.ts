@@ -9,3 +9,13 @@ export interface IEmployeeDefaultWeeklySimplifiedTimeSlots {
     sat: ISimplifiedTimeSlotResponse | null;
     sun: ISimplifiedTimeSlotResponse | null;
 }
+
+export interface IUpdateEmployeeDefaultWeeklyTimeSlotsRequest {
+    mon: number | null;
+    tue: number | null;
+    wed: number | null;
+    thu: number | null;
+    fri: number | null;
+    sat: number | null;
+    sun: number | null;
+}

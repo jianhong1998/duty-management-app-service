@@ -1,3 +1,5 @@
+import { Transaction } from 'sequelize';
+import { IEmployeeUpdate } from '../../models/employee/employee.model';
 import { IEmployeeDefaultWeeklySimplifiedTimeSlots } from '../../models/timeSlot/employeeTimeSlot.model';
 import { ISimplifiedTimeSlotResponse } from '../../models/timeSlot/timeSlot.model';
 import TimeUtil from '../../utils/time/timeUtil';
@@ -89,5 +91,21 @@ export default class EmployeeTimeSlotService {
                 timeSlots[0].endTime,
             ),
         };
+    }
+
+    static async updateEmployeeDefaultWeeklyTimeSlots(
+        employeeId: number,
+        partialEmployee: IEmployeeUpdate,
+        transaction?: Transaction,
+    ): Promise<IEmployeeDefaultWeeklySimplifiedTimeSlots> {
+        await EmployeeService.updateEmployees(
+            {
+                id: employeeId,
+            },
+            partialEmployee,
+            transaction,
+        );
+
+        return await this.getEmployeeDefaultWeeklyTimeSlots(employeeId);
     }
 }
