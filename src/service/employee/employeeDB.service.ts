@@ -118,7 +118,7 @@ export default class EmployeeService {
                 compareRole: true,
             });
 
-            if (!result) {
+            if (result) {
                 throw new Error(`Employee ${employee.id} is not changed!`);
             }
         }
@@ -175,7 +175,6 @@ export default class EmployeeService {
         } = options;
 
         if (compareId && employee1.id !== employee2.id) {
-            console.log('id');
             return false;
         }
 
@@ -190,22 +189,18 @@ export default class EmployeeService {
             compareEmploymentType &&
             employee1.employmentType !== employee2.employmentType
         ) {
-            console.log('employment type');
             return false;
         }
 
         if (compareIsActive && employee1.isActive !== employee2.isActive) {
-            console.log('is active');
             return false;
         }
 
         if (compareName && employee1.name !== employee2.name) {
-            console.log('name');
             return false;
         }
 
         if (compareRole && employee1.role !== employee2.role) {
-            console.log('role');
             return false;
         }
 
