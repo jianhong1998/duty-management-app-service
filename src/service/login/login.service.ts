@@ -50,6 +50,7 @@ export default class LoginService {
             name: user.employee.name,
             accountType: user.accountType,
             accountStatus: user.accountStatus,
+            employeeId: user.employee.isActive ? user.employeeId : null,
         };
     }
 }

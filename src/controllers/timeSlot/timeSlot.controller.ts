@@ -1,63 +1,66 @@
 import { RequestHandler } from 'express';
-import { ITimeSlot } from '../../models/timeSlot/timeSlot.model';
+import StandardResponse from '../../models/response/standardResponse.model';
+import { ITimeSlotResponse } from '../../models/timeSlot/timeSlot.model';
 import TimeSlotService from '../../service/timeSlot/timeSlotDB.service';
 import ErrorHandler from '../../service/errorHandler/errorHandler.service';
-import StandardResponse from '../../models/response/standardResponse.model';
+import TimeUtil from '../../utils/time/timeUtil';
 
 export default class TimeSlotController {
-    static getTimeSlot: RequestHandler<
-        { id: string },
-        StandardResponse<Omit<ITimeSlot, 'createAt' & 'updatedAt'>>
+    static getAllTimeSlots: RequestHandler<
+        undefined,
+        StandardResponse<ITimeSlotResponse[]>
     > = async (req, res) => {
         try {
-            const { id: idInString } = req.params;
+            const timeSlots = await TimeSlotService.getTimeSlots({
+                isDeleted: false,
+            });
 
-            const id = Number.parseInt(idInString);
+            const resultTimeSlots: ITimeSlotResponse[] = timeSlots.map(
+                (timeSlot) => {
+                    const {
+                        endTime,
+                        id,
+                        isAvailableForFri,
+                        isAvailableForMon,
+                        isAvailableForSat,
+                        isAvailableForSun,
+                        isAvailableForThu,
+                        isAvailableForTue,
+                        isAvailableForWed,
+                        isDeleted,
+                        startTime,
+                    } = timeSlot;
 
-            const timeSlots = await TimeSlotService.getTimeSlots({ id });
-
-            if (timeSlots.length !== 1) {
-                return ErrorHandler.sendErrorResponse(
-                    res,
-                    404,
-                    'Timeslot is not exists.',
-                );
-            }
-
-            const {
-                id: timeSlotId,
-                startTime,
-                endTime,
-                isDeleted,
-                isAvailableForFri,
-                isAvailableForMon,
-                isAvailableForSat,
-                isAvailableForSun,
-                isAvailableForThu,
-                isAvailableForTue,
-                isAvailableForWed,
-            } = timeSlots[0];
+                    return {
+                        id,
+                        isDeleted,
+                        startTime:
+                            TimeUtil.convertDateObjectToTimeString(startTime),
+                        endTime:
+                            TimeUtil.convertDateObjectToTimeString(endTime),
+                        isAvailableFor: {
+                            mon: isAvailableForMon,
+                            tue: isAvailableForTue,
+                            wed: isAvailableForWed,
+                            thu: isAvailableForThu,
+                            fri: isAvailableForFri,
+                            sat: isAvailableForSat,
+                            sun: isAvailableForSun,
+                        },
+                    };
+                },
+            );
 
             res.status(200).send({
                 isSuccess: true,
-                data: {
-                    id: timeSlotId,
-                    startTime,
-                    endTime,
-                    isDeleted,
-                    isAvailableForMon,
-                    isAvailableForTue,
-                    isAvailableForWed,
-                    isAvailableForThu,
-                    isAvailableForFri,
-                    isAvailableForSat,
-                    isAvailableForSun,
-                },
+                data: resultTimeSlots,
             });
         } catch (error) {
-            const errorMessage = ErrorHandler.getErrorMessage(error);
-
-            ErrorHandler.sendErrorResponse(res, 500, errorMessage);
+            ErrorHandler.sendErrorResponse(
+                res,
+                500,
+                ErrorHandler.getErrorMessage(error),
+            );
         }
     };
 }

@@ -10,6 +10,7 @@ export interface ILoginSuccessResult {
     name: string;
     accountType: UserAccountType;
     accountStatus: UserAccountStatus;
+    employeeId: number | null;
 }
 
 export interface ILoginFailureResult {
