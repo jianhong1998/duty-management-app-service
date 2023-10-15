@@ -13,3 +13,22 @@ export interface ITimeSlot {
     createdAt?: Date;
     updatedAt?: Date;
 }
+
+export interface ITimeSlotResponse extends Pick<ITimeSlot, 'id' | 'isDeleted'> {
+    startTime: string;
+    endTime: string;
+    isAvailableFor: {
+        mon: boolean;
+        tue: boolean;
+        wed: boolean;
+        thu: boolean;
+        fri: boolean;
+        sat: boolean;
+        sun: boolean;
+    };
+}
+
+export type ISimplifiedTimeSlotResponse = Pick<
+    ITimeSlotResponse,
+    'id' | 'startTime' | 'endTime'
+>;

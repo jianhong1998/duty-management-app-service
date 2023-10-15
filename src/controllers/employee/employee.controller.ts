@@ -1,201 +1,76 @@
 import { Request, Response } from 'express';
-import StandardResponse from '../../models/response/standardResponse.model';
-import IEmployee, {
-    IEmployeeCreation,
-    IEmployeeResponse,
-    IEmployeeUpdate,
-} from '../../models/employee/employee.model';
+import { IEmployeeResponse } from '../../models/employee/employee.model';
+import TokenService from '../../service/login/token.service';
+import UserAccountService from '../../service/userAccount/userAccountDB.service';
+import EmployeeDBModel from '../../models/employee/employeeDBModel.model';
 import ErrorHandler from '../../service/errorHandler/errorHandler.service';
-import EmployeeService from '../../service/employee/employeeDB.service';
-import { WhereOptions } from 'sequelize';
-import EmployeeConvertorService from '../../service/employee/employeeConvertor.service';
+import StandardResponse from '../../models/response/standardResponse.model';
+import { UserAccountStatus } from '../../models/userAccount/userAccount.enum';
+import { Op } from 'sequelize';
 
 export default class EmployeeController {
-    public static async getAllEmployeesHandler(
-        req: Request<undefined, any, undefined, { isActive?: string }>,
-        res: Response<StandardResponse<IEmployeeResponse[]>>,
+    public static async getEmployeeDetails(
+        req: Request,
+        res: Response<StandardResponse<IEmployeeResponse>>,
     ) {
-        const { isActive: isActiveString } = req.query;
-
-        let isActive: boolean | undefined;
-
-        switch (isActiveString) {
-            case 'true':
-                isActive = true;
-                break;
-            case 'false':
-                isActive = false;
-                break;
-            case undefined:
-                isActive = undefined;
-                break;
-            default:
-                return ErrorHandler.sendErrorResponse(
-                    res,
-                    400,
-                    "Value of isActive is invalid. Must be either 'true' or 'false'.",
-                );
-        }
-
         try {
-            if (typeof isActive !== 'undefined') {
-                const employees = await EmployeeService.getEmployees({
-                    isActive,
-                });
+            const token = req.headers.authorization.split(' ')[1];
 
-                const employeeResponses: IEmployeeResponse[] = employees.map(
-                    (employee) => {
-                        return EmployeeConvertorService.convertToIEmployeeResponse(
-                            employee,
-                        );
+            const { userId } = TokenService.decodeToken(token);
+
+            const { employee } = await UserAccountService.getUserAccount(
+                {
+                    id: userId,
+                    accountStatus: {
+                        [Op.or]: [
+                            UserAccountStatus.ACTIVE,
+                            UserAccountStatus.RESETING_PASSWORD,
+                        ],
                     },
-                );
-
-                return res.status(200).send({
-                    data: employeeResponses,
-                    isSuccess: true,
-                });
-            }
-
-            const employees = await EmployeeService.getAllEmployees();
-
-            return res.status(200).send({
-                data: employees.map((employee) =>
-                    EmployeeConvertorService.convertToIEmployeeResponse(
-                        employee,
-                    ),
-                ),
-                isSuccess: true,
-            });
-        } catch (error) {
-            const errorMessage = ErrorHandler.getErrorMessage(error);
-            return ErrorHandler.sendErrorResponse(res, 500, errorMessage);
-        }
-    }
-
-    public static async getEmployeeHandler(
-        req: Request<{ employeeId: string }>,
-        res: Response<StandardResponse<IEmployeeResponse>>,
-    ) {
-        try {
-            const employeeId = Number.parseInt(req.params.employeeId);
-
-            const employees = await EmployeeService.getEmployees({
-                id: employeeId,
-            });
-
-            if (employees.length === 0) {
-                return ErrorHandler.sendErrorResponse(
-                    res,
-                    404,
-                    'Employee is not found',
-                );
-            }
-
-            return res.status(200).send({
-                data: EmployeeConvertorService.convertToIEmployeeResponse(
-                    employees[0],
-                ),
-                isSuccess: true,
-            });
-        } catch (error) {
-            const errorMessage = ErrorHandler.getErrorMessage(error);
-            return ErrorHandler.sendErrorResponse(res, 500, errorMessage);
-        }
-    }
-
-    public static async createEmployeeHandler(
-        req: Request<undefined, any, IEmployeeCreation>,
-        res: Response<StandardResponse<IEmployeeResponse>>,
-    ) {
-        try {
-            const employeeCreationRequestBody = req.body;
-
-            const newEmployee = await EmployeeService.createEmployee(
-                employeeCreationRequestBody,
+                },
+                [
+                    {
+                        model: EmployeeDBModel,
+                    },
+                ],
             );
 
-            return res.status(200).send({
-                data: EmployeeConvertorService.convertToIEmployeeResponse(
-                    newEmployee,
-                ),
+            if (typeof employee === 'undefined' || !employee.isActive) {
+                return ErrorHandler.sendErrorResponse(
+                    res,
+                    404,
+                    'This account do not have any employee available',
+                );
+            }
+
+            const employeeResponse: IEmployeeResponse = {
+                id: employee.id,
+                name: employee.name,
+                contactNumber: employee.contactNumber,
+                employmentType: employee.employmentType,
+                isActive: employee.isActive,
+                role: employee.role,
+                weeklyAvailabilityTimeSlotIds: {
+                    mon: employee.monAvailabilityTimeSlotId,
+                    tue: employee.tueAvailabilityTimeSlotId,
+                    wed: employee.wedAvailabilityTimeSlotId,
+                    thu: employee.thuAvailabilityTimeSlotId,
+                    fri: employee.friAvailabilityTimeSlotId,
+                    sat: employee.satAvailabilityTimeSlotId,
+                    sun: employee.sunAvailabilityTimeSlotId,
+                },
+            };
+
+            res.status(200).send({
                 isSuccess: true,
+                data: employeeResponse,
             });
         } catch (error) {
-            const errorMessage = ErrorHandler.getErrorMessage(error);
-            return ErrorHandler.sendErrorResponse(res, 500, errorMessage);
-        }
-    }
-
-    public static async updateEmployeesHandler(
-        req: Request<{ employeeId: string }, any, IEmployeeUpdate>,
-        res: Response<StandardResponse<IEmployeeResponse[]>>,
-    ) {
-        const employeeId = Number.parseInt(req.params.employeeId);
-
-        const condition: WhereOptions<IEmployee> = {
-            id: employeeId,
-        };
-
-        try {
-            const employees = await EmployeeService.updateEmployees(
-                condition,
-                req.body,
+            ErrorHandler.sendErrorResponse(
+                res,
+                500,
+                ErrorHandler.getErrorMessage(error),
             );
-
-            if (employees.length === 0) {
-                return ErrorHandler.sendErrorResponse(
-                    res,
-                    404,
-                    'Employee not found',
-                );
-            }
-
-            return res.status(200).send({
-                data: employees.map((employee) =>
-                    EmployeeConvertorService.convertToIEmployeeResponse(
-                        employee,
-                    ),
-                ),
-                isSuccess: true,
-            });
-        } catch (error) {
-            const errorMessage = ErrorHandler.getErrorMessage(error);
-            return ErrorHandler.sendErrorResponse(res, 500, errorMessage);
-        }
-    }
-
-    public static async deleteEmployeeHandler(
-        req: Request<{ employeeId: string }>,
-        res: Response<StandardResponse<IEmployeeResponse[]>>,
-    ) {
-        const employeeId = Number.parseInt(req.params.employeeId);
-
-        try {
-            const employees = await EmployeeService.deleteEmployees({
-                id: employeeId,
-            });
-
-            if (employees.length === 0) {
-                return ErrorHandler.sendErrorResponse(
-                    res,
-                    404,
-                    'Employee not found',
-                );
-            }
-
-            return res.status(200).send({
-                data: employees.map((employee) =>
-                    EmployeeConvertorService.convertToIEmployeeResponse(
-                        employee,
-                    ),
-                ),
-                isSuccess: true,
-            });
-        } catch (error) {
-            const errorMessage = ErrorHandler.getErrorMessage(error);
-
-            return ErrorHandler.sendErrorResponse(res, 500, errorMessage);
         }
     }
 }
