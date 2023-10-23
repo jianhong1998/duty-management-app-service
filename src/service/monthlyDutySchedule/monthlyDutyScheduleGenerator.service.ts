@@ -442,18 +442,6 @@ export default class MonthlyDutyScheduleGeneratorService {
         }
     }
 
-    private static countTotalAvailableEmployeeInMap(
-        availabilityMap: Map<ITimeSlot['id'], Array<IEmployee['id']>>,
-    ): number {
-        let totalEmployeeNumber = 0;
-
-        availabilityMap.forEach((employeeIds) => {
-            totalEmployeeNumber += employeeIds.length;
-        });
-
-        return totalEmployeeNumber;
-    }
-
     private static generateEmployeesForFirstShift(params: {
         numberOfEmployeeNeeded: number;
         availableEmployeeIds: number[];
