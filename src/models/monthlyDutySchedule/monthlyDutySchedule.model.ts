@@ -16,3 +16,8 @@ export default interface IMonthlyDutySchedule {
     employee?: IEmployee;
     timeSlot?: ITimeSlot;
 }
+
+export type IMonthlyDutyScheduleCreation = Pick<
+    IMonthlyDutySchedule,
+    'date' | 'employeeId' | 'timeSlotId'
+>;

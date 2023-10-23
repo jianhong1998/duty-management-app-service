@@ -1,0 +1,2 @@
+export const MAX_EMPLOYEE_PER_DAY = 10;
+export const MIN_EMPLOYEE_EARLIEST_SHIFT = 3;
