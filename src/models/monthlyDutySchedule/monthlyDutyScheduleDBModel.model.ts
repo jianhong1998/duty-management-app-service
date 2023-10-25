@@ -44,10 +44,11 @@ export default class MonthlyDutyScheduleDBModel extends Model<IMonthlyDutySchedu
     })
     timeSlotId: number;
 
-    @AllowNull(false)
-    @PrimaryKey
-    @Column(DataType.INTEGER)
-    version: number;
+    // @AllowNull(false)
+    // @PrimaryKey
+    // @AutoIncrement
+    // @Column(DataType.INTEGER)
+    // version: number;
 
     @AllowNull(false)
     @Default(false)

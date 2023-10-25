@@ -17,19 +17,16 @@ module.exports = {
                 date: new Date('2023-09-11'),
                 employee_id: 1,
                 time_slot_id: 1,
-                version: 1,
-            },
-            {
-                date: new Date('2023-09-11'),
-                employee_id: 1,
-                time_slot_id: 1,
-                version: 2,
             },
             {
                 date: new Date('2023-09-11'),
                 employee_id: 2,
                 time_slot_id: 1,
-                version: 2,
+            },
+            {
+                date: new Date('2023-09-11'),
+                employee_id: 3,
+                time_slot_id: 1,
             },
         ]);
     },

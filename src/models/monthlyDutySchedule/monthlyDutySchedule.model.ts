@@ -7,7 +7,7 @@ export default interface IMonthlyDutySchedule {
     date: Date;
     employeeId: number;
     timeSlotId: number;
-    version: number;
+    // version: number;
     isConfirmed: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -21,3 +21,8 @@ export type IMonthlyDutyScheduleCreation = Pick<
     IMonthlyDutySchedule,
     'date' | 'employeeId' | 'timeSlotId'
 >;
+
+export interface IMonthlyDutyScheduleResponse {
+    employees: IEmployee[];
+    monthlyDutySchedules: IMonthlyDutySchedule[];
+}

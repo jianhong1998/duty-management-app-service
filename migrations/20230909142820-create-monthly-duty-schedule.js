@@ -27,11 +27,12 @@ module.exports = {
                     key: 'id',
                 },
             },
-            version: {
-                allowNull: false,
-                type: Sequelize.INTEGER,
-                primaryKey: true,
-            },
+            // version: {
+            //     allowNull: false,
+            //     type: Sequelize.INTEGER,
+            //     primaryKey: true,
+            //     autoIncrement: true,
+            // },
             isConfirmed: {
                 allowNull: false,
                 field: 'is_confirmed',

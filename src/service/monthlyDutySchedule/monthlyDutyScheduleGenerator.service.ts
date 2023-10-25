@@ -11,7 +11,7 @@ import TimeSlotService from '../timeSlot/timeSlotDB.service';
 import EmployeeRole from '../../models/employee/employeeRole.enum';
 import {
     MAX_EMPLOYEE_PER_DAY,
-    MIN_EMPLOYEE_EARLIEST_SHIFT,
+    MIN_EMPLOYEE_IN_EARLIEST_SHIFT,
 } from '../../constants/systemConfig';
 import ArrayUtil from '../../utils/array/ArrayUtil';
 import NumberUtil from '../../utils/number/NumberUtil';
@@ -110,7 +110,7 @@ export default class MonthlyDutyScheduleGeneratorService {
                 availableEmployeeIds: employeeIdsAvailableForFirstShift,
                 employeeMap,
                 firstShiftTimeSlotId: timeSlotIds[0],
-                numberOfEmployeeNeeded: MIN_EMPLOYEE_EARLIEST_SHIFT,
+                numberOfEmployeeNeeded: MIN_EMPLOYEE_IN_EARLIEST_SHIFT,
             });
 
             dutyEmployeesForTheDay.push(
@@ -468,7 +468,8 @@ export default class MonthlyDutyScheduleGeneratorService {
 
         while (
             index < availableEmployeeIds.length &&
-            dutyScheduleCreationArrayForFirstShift.length === 0
+            dutyScheduleCreationArrayForFirstShift.length === 0 &&
+            availableEmployeeIds.length > 0
         ) {
             const employee = employeeMap.get(availableEmployeeIds[index]);
 
@@ -490,7 +491,8 @@ export default class MonthlyDutyScheduleGeneratorService {
 
         while (
             dutyScheduleCreationArrayForFirstShift.length <
-            numberOfEmployeeNeeded
+                numberOfEmployeeNeeded &&
+            availableEmployeeIds.length > 0
         ) {
             index = NumberUtil.generateRandomInteger(
                 0,
@@ -508,6 +510,15 @@ export default class MonthlyDutyScheduleGeneratorService {
             });
 
             pickedEmployeeIds.push(employeeId);
+        }
+
+        if (pickedEmployeeIds.includes(undefined)) {
+            console.log({
+                date,
+                pickedEmployeeIds,
+            });
+
+            throw new Error('pickedEmployeeIds include undefined.');
         }
 
         return {

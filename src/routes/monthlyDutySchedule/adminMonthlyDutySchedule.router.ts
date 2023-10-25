@@ -3,9 +3,19 @@ import AdminMonthlyDutyScheduleController from '../../controllers/monthlyDutySch
 
 const adminMonthlyDutyScheduleRouter = Router();
 
+adminMonthlyDutyScheduleRouter.get(
+    '/',
+    AdminMonthlyDutyScheduleController.getAllMonthlyDutySchedulesByMonth,
+);
+
 adminMonthlyDutyScheduleRouter.post(
     '/',
     AdminMonthlyDutyScheduleController.generateNewMonthlyDutySchedule,
+);
+
+adminMonthlyDutyScheduleRouter.patch(
+    '/confirm',
+    AdminMonthlyDutyScheduleController.confirmMonthlyDutyScheduleByMonth,
 );
 
 export default adminMonthlyDutyScheduleRouter;
