@@ -13,6 +13,11 @@ adminMonthlyDutyScheduleRouter.post(
     AdminMonthlyDutyScheduleController.generateNewMonthlyDutySchedule,
 );
 
+adminMonthlyDutyScheduleRouter.delete(
+    '/',
+    AdminMonthlyDutyScheduleController.deleteMonthlyDutyScheduleByMonth,
+);
+
 adminMonthlyDutyScheduleRouter.patch(
     '/confirm',
     AdminMonthlyDutyScheduleController.confirmMonthlyDutyScheduleByMonth,

@@ -113,10 +113,12 @@ export default class AdminMonthlyDutyScheduleController {
 
         try {
             const monthlyDutySchedules =
-                await MonthlyDutyScheduleService.getMonthlyDutyScheduleByMonth({
-                    month,
-                    year,
-                });
+                await MonthlyDutyScheduleService.getMonthlyDutySchedulesByMonth(
+                    {
+                        month,
+                        year,
+                    },
+                );
 
             if (monthlyDutySchedules.length === 0) {
                 return ErrorHandler.sendErrorResponse(
@@ -175,10 +177,12 @@ export default class AdminMonthlyDutyScheduleController {
 
         try {
             const monthlyDutySchedules =
-                await MonthlyDutyScheduleService.getMonthlyDutyScheduleByMonth({
-                    month,
-                    year,
-                });
+                await MonthlyDutyScheduleService.getMonthlyDutySchedulesByMonth(
+                    {
+                        month,
+                        year,
+                    },
+                );
 
             if (monthlyDutySchedules.length === 0) {
                 return ErrorHandler.sendErrorResponse(
@@ -232,6 +236,91 @@ export default class AdminMonthlyDutyScheduleController {
                 },
             });
         } catch (error) {
+            return ErrorHandler.sendErrorResponse(
+                res,
+                500,
+                ErrorHandler.getErrorMessage(error),
+            );
+        }
+    };
+
+    static deleteMonthlyDutyScheduleByMonth: RequestHandler<
+        undefined,
+        StandardResponse<undefined>,
+        undefined,
+        { month: string; year: string }
+    > = async (req, res) => {
+        const transaction = await db.getInstance().transaction();
+
+        try {
+            const { month: monthInString, year: yearInString } = req.query;
+
+            const month = Number.parseInt(monthInString);
+            const year = Number.parseInt(yearInString);
+
+            if (
+                Number.isNaN(month) ||
+                Number.isNaN(year) ||
+                month <= 0 ||
+                year <= 0
+            ) {
+                await transaction.commit();
+                return ErrorHandler.sendErrorResponse(
+                    res,
+                    400,
+                    'Year and month must be positive number',
+                );
+            }
+
+            const monthlyDutySchedules =
+                await MonthlyDutyScheduleService.getMonthlyDutySchedulesByMonth(
+                    {
+                        month,
+                        year,
+                    },
+                );
+
+            if (monthlyDutySchedules.length === 0) {
+                await transaction.commit();
+                return ErrorHandler.sendErrorResponse(
+                    res,
+                    404,
+                    'Monthly Duty Schedules are not found.',
+                );
+            }
+
+            const startDate = DateUtil.generateDateObject({
+                date: 1,
+                month,
+                year,
+            });
+
+            const endDate = DateUtil.generateDateObject({
+                date: DateUtil.getMonthLastDay(year, month),
+                month,
+                year,
+            });
+
+            const numberOfDeletedRecord =
+                await MonthlyDutyScheduleService.deleteMonthlyDutySchedules(
+                    {
+                        date: {
+                            [Op.between]: [startDate, endDate],
+                        },
+                    },
+                    { transaction },
+                );
+
+            if (numberOfDeletedRecord !== monthlyDutySchedules.length) {
+                throw new Error('Number of deleted records is not equal');
+            }
+
+            await transaction.commit();
+
+            res.sendStatus(204);
+        } catch (error) {
+            await transaction.rollback();
+
             return ErrorHandler.sendErrorResponse(
                 res,
                 500,

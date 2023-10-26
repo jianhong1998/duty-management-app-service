@@ -58,7 +58,7 @@ export default class MonthlyDutyScheduleService {
         return count > 0;
     }
 
-    static async getMonthlyDutyScheduleByMonth(
+    static async getMonthlyDutySchedulesByMonth(
         monthInfo: MonthInfo,
         options?: {
             includeEmployee?: boolean;
@@ -110,5 +110,19 @@ export default class MonthlyDutyScheduleService {
         });
 
         return result[1];
+    }
+
+    static async deleteMonthlyDutySchedules(
+        condition: WhereOptions<MonthlyDutyScheduleDBModel>,
+        options?: {
+            transaction?: Transaction;
+        },
+    ): Promise<number> {
+        const numberOfDeletedRecord = await MonthlyDutyScheduleDBModel.destroy({
+            where: condition,
+            transaction: options?.transaction,
+        });
+
+        return numberOfDeletedRecord;
     }
 }
