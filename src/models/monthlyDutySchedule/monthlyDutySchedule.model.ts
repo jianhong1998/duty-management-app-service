@@ -1,5 +1,6 @@
-import IEmployee from '../employee/employee.model';
+import IEmployee, { IEmployeeResponse } from '../employee/employee.model';
 import EmployeeDBModel from '../employee/employeeDBModel.model';
+import Prettify from '../prettifyType/prettify.type';
 import { ITimeSlot } from '../timeSlot/timeSlot.model';
 import TimeSlotDBModel from '../timeSlot/timeSlotDBModel.model';
 
@@ -22,7 +23,19 @@ export type IMonthlyDutyScheduleCreation = Pick<
     'date' | 'employeeId' | 'timeSlotId'
 >;
 
+export type IResponseMonthlyDutySchedule = Prettify<
+    Omit<IMonthlyDutySchedule, 'date'> & {
+        date: string;
+    }
+>;
+
 export interface IMonthlyDutyScheduleResponse {
-    employees: IEmployee[];
-    monthlyDutySchedules: IMonthlyDutySchedule[];
+    monthInfo: {
+        month: number;
+        year: number;
+        totalDays: number;
+    };
+    employees: IEmployeeResponse[];
+    timeSlots: ITimeSlot[];
+    monthlyDutySchedules: IResponseMonthlyDutySchedule[];
 }

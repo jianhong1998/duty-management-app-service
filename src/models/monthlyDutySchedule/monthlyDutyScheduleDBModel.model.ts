@@ -1,4 +1,6 @@
 import {
+    AfterBulkCreate,
+    AfterCreate,
     AfterFind,
     AllowNull,
     BelongsTo,
@@ -84,6 +86,8 @@ export default class MonthlyDutyScheduleDBModel extends Model<IMonthlyDutySchedu
     timeSlot?: ITimeSlot;
 
     @AfterFind
+    @AfterCreate
+    @AfterBulkCreate
     static convertDate(
         instances:
             | MonthlyDutyScheduleDBModel[]

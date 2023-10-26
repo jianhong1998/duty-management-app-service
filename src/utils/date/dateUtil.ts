@@ -1,3 +1,4 @@
+import moment from 'moment';
 import { WeekDay } from '../../service/monthlyDutySchedule/monthlyDutyScheduleDB.service';
 
 export default class DateUtil {
@@ -56,5 +57,9 @@ export default class DateUtil {
             default:
                 throw new Error('Invalid Month');
         }
+    }
+
+    static convertDateObjectToDateString(date: Date): string {
+        return moment(date.toISOString()).format('YYYY-MM-DD');
     }
 }

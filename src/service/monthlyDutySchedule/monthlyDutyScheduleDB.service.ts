@@ -97,19 +97,31 @@ export default class MonthlyDutyScheduleService {
             ),
         });
 
-        return monthlyDutySchedules;
+        return monthlyDutySchedules.map(
+            (monthlyDutySchedule) => monthlyDutySchedule.dataValues,
+        );
     }
 
-    static async updateMonthlyDutySchedule(
-        condition: WhereOptions<MonthlyDutyScheduleDBModel>,
-        data: Partial<IMonthlyDutySchedule>,
-    ): Promise<IMonthlyDutySchedule[]> {
-        const result = await MonthlyDutyScheduleDBModel.update(data, {
+    static async updateMonthlyDutySchedule(params: {
+        condition: WhereOptions<MonthlyDutyScheduleDBModel>;
+        data: Partial<IMonthlyDutySchedule>;
+        options?: {
+            transaction: Transaction;
+        };
+    }): Promise<IMonthlyDutySchedule[]> {
+        const { condition, data, options } = params;
+
+        await MonthlyDutyScheduleDBModel.update(data, {
             where: condition,
-            returning: true,
+            transaction: options?.transaction,
         });
 
-        return result[1];
+        return (
+            await MonthlyDutyScheduleDBModel.findAll({
+                where: condition,
+                transaction: options?.transaction,
+            })
+        ).map((dutySchedule) => dutySchedule.dataValues);
     }
 
     static async deleteMonthlyDutySchedules(

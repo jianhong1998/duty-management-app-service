@@ -2,6 +2,8 @@ import moment from 'moment';
 import IEmployee from '../../models/employee/employee.model';
 import IMonthlyDutySchedule from '../../models/monthlyDutySchedule/monthlyDutySchedule.model';
 import EmployeeService from '../employee/employeeDB.service';
+import { ITimeSlot } from '../../models/timeSlot/timeSlot.model';
+import TimeSlotService from '../timeSlot/timeSlotDB.service';
 
 export default class MonthlyDutyScheduleUtil {
     public static isMonthlyDutyScheduleConfirm(
@@ -46,5 +48,29 @@ export default class MonthlyDutyScheduleUtil {
         const employees = [...employeeMap.values()].sort((a, b) => a.id - b.id);
 
         return employees;
+    }
+
+    public static async getTimeSlotsFromMonthlyDutySchedules(
+        monthlyDutySchedules: IMonthlyDutySchedule[],
+    ): Promise<ITimeSlot[]> {
+        const timeSlotMap = new Map<ITimeSlot['id'], ITimeSlot>();
+
+        for (const dutySchedule of monthlyDutySchedules) {
+            const timeSlotId = dutySchedule.timeSlotId;
+
+            if (!timeSlotMap.has(timeSlotId)) {
+                const timeSlotArray = await TimeSlotService.getTimeSlots({
+                    id: timeSlotId,
+                });
+
+                if (timeSlotArray.length !== 1) {
+                    throw new Error('Time Slot is not exist');
+                }
+
+                timeSlotMap.set(timeSlotId, timeSlotArray[0]);
+            }
+        }
+
+        return [...timeSlotMap.values()].sort((a, b) => a.id - b.id);
     }
 }
