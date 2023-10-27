@@ -120,23 +120,8 @@ export default class AdminMonthlyDutyScheduleController {
         undefined,
         { month: string; year: string }
     > = async (req, res) => {
-        const { month: monthInString, year: yearInString } = req.query;
-
-        const month = Number.parseInt(monthInString);
-        const year = Number.parseInt(yearInString);
-
-        if (
-            Number.isNaN(month) ||
-            Number.isNaN(year) ||
-            month <= 0 ||
-            year <= 0
-        ) {
-            return ErrorHandler.sendErrorResponse(
-                res,
-                400,
-                'Year and month must be positive number',
-            );
-        }
+        const month = Number.parseInt(req.query.month);
+        const year = Number.parseInt(req.query.year);
 
         try {
             const monthlyDutySchedules =
@@ -209,23 +194,8 @@ export default class AdminMonthlyDutyScheduleController {
         undefined,
         { month: string; year: string }
     > = async (req, res) => {
-        const { month: monthInStrig, year: yearInString } = req.query;
-
-        const month = Number.parseInt(monthInStrig);
-        const year = Number.parseInt(yearInString);
-
-        if (
-            Number.isNaN(month) ||
-            Number.isNaN(year) ||
-            month <= 0 ||
-            year <= 0
-        ) {
-            return ErrorHandler.sendErrorResponse(
-                res,
-                400,
-                'Year and month must be positive integer',
-            );
-        }
+        const month = Number.parseInt(req.query.month);
+        const year = Number.parseInt(req.query.year);
 
         const transaction = await db.getInstance().transaction();
 
@@ -340,24 +310,8 @@ export default class AdminMonthlyDutyScheduleController {
         const transaction = await db.getInstance().transaction();
 
         try {
-            const { month: monthInString, year: yearInString } = req.query;
-
-            const month = Number.parseInt(monthInString);
-            const year = Number.parseInt(yearInString);
-
-            if (
-                Number.isNaN(month) ||
-                Number.isNaN(year) ||
-                month <= 0 ||
-                year <= 0
-            ) {
-                await transaction.commit();
-                return ErrorHandler.sendErrorResponse(
-                    res,
-                    400,
-                    'Year and month must be positive number',
-                );
-            }
+            const month = Number.parseInt(req.query.month);
+            const year = Number.parseInt(req.query.year);
 
             const monthlyDutySchedules =
                 await MonthlyDutyScheduleService.getMonthlyDutySchedulesByMonth(
