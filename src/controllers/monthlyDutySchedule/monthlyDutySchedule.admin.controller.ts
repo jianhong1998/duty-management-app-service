@@ -2,7 +2,7 @@ import { RequestHandler } from 'express';
 import MonthlyDutyScheduleService from '../../service/monthlyDutySchedule/monthlyDutyScheduleDB.service';
 import MonthInfo from '../../models/monthlyDutySchedule/monthInfo.model';
 import ErrorHandler from '../../service/errorHandler/errorHandler.service';
-import DateUtil from '../../utils/date/DateUtil';
+import DateUtil from '../../utils/date/dateUtil';
 import IMonthlyDutySchedule, {
     IMonthlyDutyScheduleResponse,
 } from '../../models/monthlyDutySchedule/monthlyDutySchedule.model';
