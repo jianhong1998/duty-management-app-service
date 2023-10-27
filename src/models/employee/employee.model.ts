@@ -1,3 +1,5 @@
+import { ITimeSlot } from '../timeSlot/timeSlot.model';
+import TimeSlotDBModel from '../timeSlot/timeSlotDBModel.model';
 import EmployeeRole from './employeeRole.enum';
 import EmploymentType from './employmentType.enum';
 
@@ -15,6 +17,20 @@ export default interface IEmployee {
     friAvailabilityTimeSlotId: number | null;
     satAvailabilityTimeSlotId: number | null;
     sunAvailabilityTimeSlotId: number | null;
+    monAvailabilityTimeSlotDBModel?: TimeSlotDBModel;
+    tueAvailabilityTimeSlotDBModel?: TimeSlotDBModel;
+    wedAvailabilityTimeSlotDBModel?: TimeSlotDBModel;
+    thuAvailabilityTimeSlotDBModel?: TimeSlotDBModel;
+    friAvailabilityTimeSlotDBModel?: TimeSlotDBModel;
+    satAvailabilityTimeSlotDBModel?: TimeSlotDBModel;
+    sunAvailabilityTimeSlotDBModel?: TimeSlotDBModel;
+    monAvailabilityTimeSlot?: ITimeSlot;
+    tueAvailabilityTimeSlot?: ITimeSlot;
+    wedAvailabilityTimeSlot?: ITimeSlot;
+    thuAvailabilityTimeSlot?: ITimeSlot;
+    friAvailabilityTimeSlot?: ITimeSlot;
+    satAvailabilityTimeSlot?: ITimeSlot;
+    sunAvailabilityTimeSlot?: ITimeSlot;
     createdAt?: Date;
     updatedAt?: Date;
 }

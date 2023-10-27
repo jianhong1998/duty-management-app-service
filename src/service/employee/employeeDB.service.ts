@@ -1,4 +1,4 @@
-import { Transaction, WhereOptions } from 'sequelize';
+import { IncludeOptions, Transaction, WhereOptions } from 'sequelize';
 import IEmployee, {
     IEmployeeCreation,
     IEmployeeUpdate,
@@ -25,9 +25,13 @@ export default class EmployeeService {
      */
     public static async getEmployees(
         condition: WhereOptions<IEmployee>,
+        options?: {
+            include?: IncludeOptions[];
+        },
     ): Promise<IEmployee[]> {
         const employees = await EmployeeDBModel.findAll({
             where: condition,
+            include: options?.include,
         });
 
         return employees.map((employee) => employee.dataValues);
