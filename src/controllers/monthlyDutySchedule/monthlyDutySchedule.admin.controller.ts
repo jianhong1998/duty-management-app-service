@@ -239,7 +239,7 @@ export default class AdminMonthlyDutyScheduleController {
                 );
 
             if (monthlyDutySchedules.length === 0) {
-                await transaction.commit();
+                await transaction.rollback();
                 return ErrorHandler.sendErrorResponse(
                     res,
                     404,
@@ -253,7 +253,7 @@ export default class AdminMonthlyDutyScheduleController {
                 );
 
             if (isConfirmed) {
-                await transaction.commit();
+                await transaction.rollback();
                 return ErrorHandler.sendErrorResponse(res, 304, '');
             }
 
