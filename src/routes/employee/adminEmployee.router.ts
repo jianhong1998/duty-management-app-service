@@ -9,14 +9,23 @@ const adminEmployeeRouter = Router();
 adminEmployeeRouter.use(AuthMiddleware.authorized([UserAccountType.ADMIN]));
 
 adminEmployeeRouter.use('/', EmployeeMiddleware.verifyRequestBody);
-adminEmployeeRouter.use('/:employeeId', EmployeeMiddleware.verifyEmployeeId);
 
 adminEmployeeRouter.get('/', AdminEmployeeController.getAllEmployeesHandler);
+
+adminEmployeeRouter.post('/', AdminEmployeeController.createEmployeeHandler);
+
+adminEmployeeRouter.patch(
+    '/reactivate/:employeeId',
+    EmployeeMiddleware.verifyEmployeeId,
+    AdminEmployeeController.reactivateEmployeeHandler,
+);
+
+adminEmployeeRouter.use('/:employeeId', EmployeeMiddleware.verifyEmployeeId);
+
 adminEmployeeRouter.get(
     '/:employeeId',
     AdminEmployeeController.getEmployeeHandler,
 );
-adminEmployeeRouter.post('/', AdminEmployeeController.createEmployeeHandler);
 adminEmployeeRouter.put(
     '/:employeeId',
     AdminEmployeeController.updateEmployeesHandler,

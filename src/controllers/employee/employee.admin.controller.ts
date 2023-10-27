@@ -9,6 +9,7 @@ import ErrorHandler from '../../service/errorHandler/errorHandler.service';
 import EmployeeService from '../../service/employee/employeeDB.service';
 import { WhereOptions } from 'sequelize';
 import EmployeeConvertorService from '../../service/employee/employeeConvertor.service';
+import db from '../../sequelize/sequelize';
 
 export default class AdminEmployeeController {
     public static async getAllEmployeesHandler(
@@ -196,6 +197,74 @@ export default class AdminEmployeeController {
             const errorMessage = ErrorHandler.getErrorMessage(error);
 
             return ErrorHandler.sendErrorResponse(res, 500, errorMessage);
+        }
+    }
+
+    public static async reactivateEmployeeHandler(
+        req: Request<{ employeeId: string }>,
+        res: Response<StandardResponse<IEmployeeResponse>>,
+    ) {
+        const employeeId = Number.parseInt(req.params.employeeId);
+
+        const transaction = await db.getInstance().transaction();
+
+        try {
+            const employees = await EmployeeService.getEmployees({
+                id: employeeId,
+            });
+
+            if (employees.length !== 1) {
+                await transaction.rollback();
+                return ErrorHandler.sendErrorResponse(
+                    res,
+                    404,
+                    'Employee not found',
+                );
+            }
+
+            const [employee] = employees;
+
+            if (employee.isActive) {
+                await transaction.rollback();
+                return ErrorHandler.sendErrorResponse(
+                    res,
+                    409,
+                    'Employee is already active',
+                );
+            }
+
+            const updatedEmployees = await EmployeeService.updateEmployees(
+                { id: employeeId },
+                { isActive: true },
+                transaction,
+            );
+
+            if (updatedEmployees.length !== 1) {
+                throw new Error(
+                    'Employee is more than one fulfilled the employeeId. Something went wrong. Update rollbacked.',
+                );
+            }
+
+            await transaction.commit();
+
+            res.status(200).send({
+                isSuccess: true,
+                data: EmployeeConvertorService.convertToIEmployeeResponse(
+                    (
+                        await EmployeeService.getEmployees({
+                            id: employeeId,
+                        })
+                    )[0],
+                ),
+            });
+        } catch (error) {
+            await transaction.rollback();
+
+            ErrorHandler.sendErrorResponse(
+                res,
+                500,
+                ErrorHandler.getErrorMessage(error),
+            );
         }
     }
 }
