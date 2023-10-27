@@ -6,7 +6,7 @@ import EmployeeService from '../employee/employeeDB.service';
 import { WeekDay } from './monthlyDutyScheduleDB.service';
 import { ITimeSlot } from '../../models/timeSlot/timeSlot.model';
 import { IMonthlyDutyScheduleCreation } from '../../models/monthlyDutySchedule/monthlyDutySchedule.model';
-import DateUtil from '../../utils/date/DateUtil';
+import DateUtil from '../../utils/date/dateUtil';
 import TimeSlotService from '../timeSlot/timeSlotDB.service';
 import EmployeeRole from '../../models/employee/employeeRole.enum';
 import {

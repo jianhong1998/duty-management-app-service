@@ -3,7 +3,7 @@ import MonthInfo from '../../models/monthlyDutySchedule/monthInfo.model';
 import IMonthlyDutySchedule from '../../models/monthlyDutySchedule/monthlyDutySchedule.model';
 import MonthlyDutyScheduleDBModel from '../../models/monthlyDutySchedule/monthlyDutyScheduleDBModel.model';
 import MonthlyDutyScheduleGeneratorService from './monthlyDutyScheduleGenerator.service';
-import DateUtil from '../../utils/date/DateUtil';
+import DateUtil from '../../utils/date/dateUtil';
 import EmployeeDBModel from '../../models/employee/employeeDBModel.model';
 
 export enum WeekDay {
