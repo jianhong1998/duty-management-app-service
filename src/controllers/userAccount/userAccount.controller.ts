@@ -16,6 +16,7 @@ import EmployeeDBModel from '../../models/employee/employeeDBModel.model';
 import db from '../../sequelize/sequelize';
 import EmailUtil from '../../utils/email/emailUtil';
 import EmailTemplateType from '../../utils/email/emailTemplateType.enum';
+import EmailValidationUtil from '../../utils/email/emailVerificationUtil';
 
 export default class UserAccountController {
     static getUserAccountByEmployeeId: RequestHandler<
@@ -298,6 +299,94 @@ export default class UserAccountController {
             const errorMessage = ErrorHandler.getErrorMessage(error);
 
             return ErrorHandler.sendErrorResponse(res, 500, errorMessage);
+        }
+    };
+
+    static forgetPasswordHandler: RequestHandler<
+        undefined,
+        StandardResponse<{ message: string }>,
+        { email: string }
+    > = async (req, res) => {
+        const email = req.body.email.trim();
+
+        const isEmailValid = EmailValidationUtil.isEmailValid(email);
+
+        if (!isEmailValid) {
+            return ErrorHandler.sendErrorResponse(
+                res,
+                400,
+                'Invalid email address',
+            );
+        }
+
+        const transaction = await db.getInstance().transaction();
+
+        try {
+            const isEmailRegistered =
+                await UserAccountService.isEmailAddressRegistered(email);
+
+            if (!isEmailRegistered) {
+                await transaction.rollback();
+
+                return ErrorHandler.sendErrorResponse(
+                    res,
+                    404,
+                    'Email is not registered',
+                );
+            }
+
+            const userAccount = await UserAccountService.getUserAccount(
+                {
+                    emailAddress: email,
+                },
+                [
+                    {
+                        model: EmployeeDBModel,
+                    },
+                ],
+            );
+
+            const generatedPassword = PasswordUtil.generateNewPassword(10);
+            const hashedPassword =
+                PasswordUtil.encryptPassword(generatedPassword);
+
+            await UserAccountService.updateUserAccounts(
+                {
+                    emailAddress: email,
+                },
+                {
+                    password: hashedPassword,
+                },
+                transaction,
+            );
+
+            const emailSendingResult = await EmailUtil.sendEmail(
+                email,
+                EmailTemplateType.FORGET_PASSWORD,
+                {
+                    name: userAccount.employee.name,
+                    password: generatedPassword,
+                },
+            );
+
+            console.log(emailSendingResult);
+
+            await transaction.commit();
+
+            res.status(200).send({
+                isSuccess: true,
+                data: {
+                    message: 'Email sent.',
+                },
+            });
+        } catch (error) {
+            await transaction.rollback();
+
+            ErrorHandler.sendErrorResponse(
+                res,
+                500,
+                ErrorHandler.getErrorMessage(error),
+            );
         }
     };
 }

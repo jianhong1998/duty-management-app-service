@@ -28,4 +28,20 @@ export default class UserAccountMiddleware {
 
         next();
     };
+
+    static verifyEmailInRequestBody: RequestHandler<
+        any,
+        StandardResponse<any>,
+        { email: string }
+    > = (req, res, next) => {
+        if (!('email' in req.body) || typeof req.body.email !== 'string') {
+            return ErrorHandler.sendErrorResponse(
+                res,
+                400,
+                'Invalid email address.',
+            );
+        }
+
+        next();
+    };
 }
