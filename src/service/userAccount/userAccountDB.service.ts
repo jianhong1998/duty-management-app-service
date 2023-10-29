@@ -8,10 +8,12 @@ export default class UserAccountService {
     static async getUserAccount(
         condition: WhereOptions<UserAccountDBModel>,
         include?: Includeable[],
+        transaction?: Transaction,
     ): Promise<IUserAccount | null> {
         const userAccount = await UserAccountDBModel.findOne({
             where: condition,
             include,
+            transaction,
         });
 
         return userAccount?.dataValues || null;

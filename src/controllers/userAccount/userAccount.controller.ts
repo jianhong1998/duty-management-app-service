@@ -17,6 +17,8 @@ import db from '../../sequelize/sequelize';
 import EmailUtil from '../../utils/email/emailUtil';
 import EmailTemplateType from '../../utils/email/emailTemplateType.enum';
 import EmailValidationUtil from '../../utils/email/emailVerificationUtil';
+import TokenService from '../../service/login/token.service';
+import { UserAccountStatus } from '../../models/userAccount/userAccount.enum';
 
 export default class UserAccountController {
     static getUserAccountByEmployeeId: RequestHandler<
@@ -356,6 +358,7 @@ export default class UserAccountController {
                 },
                 {
                     password: hashedPassword,
+                    accountStatus: UserAccountStatus.RESETING_PASSWORD,
                 },
                 transaction,
             );
@@ -377,6 +380,112 @@ export default class UserAccountController {
                 isSuccess: true,
                 data: {
                     message: 'Email sent.',
+                },
+            });
+        } catch (error) {
+            await transaction.rollback();
+
+            ErrorHandler.sendErrorResponse(
+                res,
+                500,
+                ErrorHandler.getErrorMessage(error),
+            );
+        }
+    };
+
+    static resetPasswordHandler: RequestHandler<
+        undefined,
+        StandardResponse<{
+            userId: number;
+            message: string;
+            accountStatus: UserAccountStatus;
+        }>,
+        { oldPassword: string; newPassword: string }
+    > = async (req, res) => {
+        const { authorization } = req.headers;
+        const { newPassword, oldPassword } = req.body;
+
+        if (!PasswordUtil.isPasswordValid(newPassword)) {
+            return ErrorHandler.sendErrorResponse(
+                res,
+                400,
+                'Password must be 8 to 30 characters',
+            );
+        }
+
+        const token = authorization?.split(' ')[1];
+
+        const { userId } = TokenService.decodeToken(token);
+
+        const hashedPassword = PasswordUtil.encryptPassword(newPassword);
+
+        const transaction = await db.getInstance().transaction();
+
+        try {
+            const userAccount = await UserAccountService.getUserAccount({
+                id: userId,
+            });
+
+            if (
+                !userAccount ||
+                userAccount.accountStatus === UserAccountStatus.DISABLED
+            ) {
+                await transaction.rollback();
+
+                return ErrorHandler.sendErrorResponse(
+                    res,
+                    404,
+                    'User account is not found or been deactivated',
+                );
+            }
+
+            if (
+                !PasswordUtil.comparePassword(oldPassword, userAccount.password)
+            ) {
+                await transaction.rollback();
+                return ErrorHandler.sendErrorResponse(
+                    res,
+                    401,
+                    'Wrong old password',
+                );
+            }
+
+            await UserAccountService.updateUserAccounts(
+                { id: userId },
+                {
+                    password: hashedPassword,
+                    accountStatus: UserAccountStatus.ACTIVE,
+                },
+                transaction,
+            );
+
+            const updatedUserAccount = await UserAccountService.getUserAccount(
+                {
+                    id: userId,
+                },
+                undefined,
+                transaction,
+            );
+
+            if (
+                !PasswordUtil.comparePassword(
+                    newPassword,
+                    updatedUserAccount.password,
+                )
+            ) {
+                throw new Error(
+                    'Password is not correctly saved. Please try again.',
+                );
+            }
+
+            await transaction.commit();
+
+            return res.status(200).send({
+                isSuccess: true,
+                data: {
+                    userId: updatedUserAccount.id,
+                    accountStatus: updatedUserAccount.accountStatus,
+                    message: 'Password reset successfully',
                 },
             });
         } catch (error) {

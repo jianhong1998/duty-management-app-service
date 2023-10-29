@@ -44,4 +44,25 @@ export default class UserAccountMiddleware {
 
         next();
     };
+
+    static verifyNewPasswordInBody: RequestHandler<
+        undefined,
+        StandardResponse<any>,
+        { newPassword: string; oldPassword: string }
+    > = (req, res, next) => {
+        if (
+            !('newPassword' in req.body) ||
+            typeof req.body.newPassword !== 'string' ||
+            !('oldPassword' in req.body) ||
+            typeof req.body.oldPassword !== 'string'
+        ) {
+            return ErrorHandler.sendErrorResponse(
+                res,
+                400,
+                'Invalid request body',
+            );
+        }
+
+        next();
+    };
 }
