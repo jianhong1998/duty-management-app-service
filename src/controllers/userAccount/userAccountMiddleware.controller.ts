@@ -28,4 +28,41 @@ export default class UserAccountMiddleware {
 
         next();
     };
+
+    static verifyEmailInRequestBody: RequestHandler<
+        any,
+        StandardResponse<any>,
+        { email: string }
+    > = (req, res, next) => {
+        if (!('email' in req.body) || typeof req.body.email !== 'string') {
+            return ErrorHandler.sendErrorResponse(
+                res,
+                400,
+                'Invalid email address.',
+            );
+        }
+
+        next();
+    };
+
+    static verifyNewPasswordInBody: RequestHandler<
+        undefined,
+        StandardResponse<any>,
+        { newPassword: string; oldPassword: string }
+    > = (req, res, next) => {
+        if (
+            !('newPassword' in req.body) ||
+            typeof req.body.newPassword !== 'string' ||
+            !('oldPassword' in req.body) ||
+            typeof req.body.oldPassword !== 'string'
+        ) {
+            return ErrorHandler.sendErrorResponse(
+                res,
+                400,
+                'Invalid request body',
+            );
+        }
+
+        next();
+    };
 }

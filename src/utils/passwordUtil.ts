@@ -26,4 +26,8 @@ export default class PasswordUtil {
 
         return password;
     }
+
+    public static isPasswordValid(password: string): boolean {
+        return password.length >= 8 && password.length <= 30;
+    }
 }
