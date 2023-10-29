@@ -10,6 +10,7 @@ import EmployeeService from '../../service/employee/employeeDB.service';
 import { WhereOptions } from 'sequelize';
 import EmployeeConvertorService from '../../service/employee/employeeConvertor.service';
 import db from '../../sequelize/sequelize';
+import UserAccountService from '../../service/userAccount/userAccountDB.service';
 
 export default class AdminEmployeeController {
     public static async getAllEmployeesHandler(
@@ -172,10 +173,15 @@ export default class AdminEmployeeController {
     ) {
         const employeeId = Number.parseInt(req.params.employeeId);
 
+        const transaction = await db.getInstance().transaction();
+
         try {
-            const employees = await EmployeeService.deleteEmployees({
-                id: employeeId,
-            });
+            const employees = await EmployeeService.deleteEmployees(
+                {
+                    id: employeeId,
+                },
+                transaction,
+            );
 
             if (employees.length === 0) {
                 return ErrorHandler.sendErrorResponse(
@@ -184,6 +190,21 @@ export default class AdminEmployeeController {
                     'Employee not found',
                 );
             }
+
+            for (const employee of employees) {
+                if (employee) {
+                    const id = employee.id;
+
+                    await UserAccountService.deleteUserAccounts(
+                        {
+                            id,
+                        },
+                        transaction,
+                    );
+                }
+            }
+
+            await transaction.commit();
 
             return res.status(200).send({
                 data: employees.map((employee) =>
@@ -194,6 +215,7 @@ export default class AdminEmployeeController {
                 isSuccess: true,
             });
         } catch (error) {
+            await transaction.rollback();
             const errorMessage = ErrorHandler.getErrorMessage(error);
 
             return ErrorHandler.sendErrorResponse(res, 500, errorMessage);
@@ -243,6 +265,12 @@ export default class AdminEmployeeController {
                 throw new Error(
                     'Employee is more than one fulfilled the employeeId. Something went wrong. Update rollbacked.',
                 );
+            }
+
+            for (const employee of updatedEmployees) {
+                await UserAccountService.reactivateUserAccunts({
+                    employeeId: employee.id,
+                });
             }
 
             await transaction.commit();

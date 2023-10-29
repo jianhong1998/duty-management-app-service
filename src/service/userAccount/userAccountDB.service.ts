@@ -3,6 +3,7 @@ import IUserAccount, {
     IUserAccountCreation,
 } from '../../models/userAccount/userAccount.model';
 import UserAccountDBModel from '../../models/userAccount/userAccountDBModel.model';
+import { UserAccountStatus } from '../../models/userAccount/userAccount.enum';
 
 export default class UserAccountService {
     static async getUserAccount(
@@ -50,6 +51,44 @@ export default class UserAccountService {
         });
 
         return userAccounts.map((userAccount) => userAccount.dataValues);
+    }
+
+    static async deleteUserAccounts(
+        condition: WhereOptions<UserAccountDBModel>,
+        transaction?: Transaction,
+    ): Promise<IUserAccount[]> {
+        await UserAccountDBModel.update(
+            { accountStatus: UserAccountStatus.DISABLED },
+            {
+                where: condition,
+                transaction,
+            },
+        );
+
+        return await UserAccountDBModel.findAll({
+            where: condition,
+            transaction,
+        });
+    }
+
+    static async reactivateUserAccunts(
+        condition: WhereOptions<UserAccountDBModel>,
+        transaction?: Transaction,
+    ): Promise<IUserAccount[]> {
+        await UserAccountDBModel.update(
+            {
+                accountStatus: UserAccountStatus.ACTIVE,
+            },
+            {
+                where: condition,
+                transaction,
+            },
+        );
+
+        return await UserAccountDBModel.findAll({
+            where: condition,
+            transaction,
+        });
     }
 
     static async isEmailAddressRegistered(

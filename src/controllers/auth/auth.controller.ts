@@ -5,6 +5,8 @@ import StandardResponse from '../../models/response/standardResponse.model';
 import ILoginRequest from '../../models/auth/loginRequest.model';
 import ILoginResponse from '../../models/auth/loginResponse.model';
 import TokenService from '../../service/login/token.service';
+import UserAccountService from '../../service/userAccount/userAccountDB.service';
+import { UserAccountStatus } from '../../models/userAccount/userAccount.enum';
 
 export default class AuthController {
     private static readonly ERROR_MESSAGE_401 =
@@ -49,33 +51,55 @@ export default class AuthController {
         }
     }
 
-    static verifyToken = (
+    static verifyToken = async (
         req: Request,
         res: Response<StandardResponse<boolean>>,
     ) => {
-        const { authorization } = req.headers;
+        try {
+            const token = req.headers.authorization.split(' ')[1];
 
-        if (typeof authorization === 'undefined') {
+            if (typeof token === 'undefined') {
+                return ErrorHandler.sendErrorResponse(
+                    res,
+                    401,
+                    this.ERROR_MESSAGE_401,
+                );
+            }
+
+            const result = TokenService.verifyToken(token);
+
+            if (!result) {
+                return ErrorHandler.sendErrorResponse(
+                    res,
+                    401,
+                    this.ERROR_MESSAGE_401,
+                );
+            }
+
+            const { userId } = TokenService.decodeToken(token);
+
+            const user = await UserAccountService.getUserAccount({
+                id: userId,
+            });
+
+            if (user.accountStatus === UserAccountStatus.DISABLED) {
+                return ErrorHandler.sendErrorResponse(
+                    res,
+                    401,
+                    this.ERROR_MESSAGE_401,
+                );
+            }
+
+            res.status(200).send({
+                isSuccess: true,
+                data: true,
+            });
+        } catch (error) {
             return ErrorHandler.sendErrorResponse(
                 res,
-                401,
-                this.ERROR_MESSAGE_401,
+                500,
+                ErrorHandler.getErrorMessage(error),
             );
         }
-
-        const result = TokenService.verifyToken(authorization.split(' ')[1]);
-
-        if (!result) {
-            return ErrorHandler.sendErrorResponse(
-                res,
-                401,
-                this.ERROR_MESSAGE_401,
-            );
-        }
-
-        res.status(200).send({
-            isSuccess: true,
-            data: true,
-        });
     };
 }
