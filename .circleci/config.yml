@@ -75,7 +75,7 @@ jobs:
                   family: 'dutySimple-staging-task-defination'
                   service-name: 'dutySimple-staging-service-2 '
                   verify-revision-is-deployed: true
-                  container-image-name-updates: 'container=dma-staging,tag=$(cat version_file.txt)'
+                  container-image-name-updates: 'container=dutySimple-staging-container,tag=$(cat version_file.txt)'
 
 # Orchestrate our job run sequence
 workflows:
