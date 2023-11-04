@@ -106,32 +106,32 @@ export default class EmployeeMiddleware {
         IGetAllEmployeeRequestQuery
     > = (req, res, next) => {
         const sortBy = req.query.sortBy;
-        const sortingOrder = req.query.sortingOrder;
+        const sortOrder = req.query.sortOrder;
 
-        if (!sortBy && !sortingOrder) {
+        if (!sortBy && !sortOrder) {
             next();
             return;
         }
 
-        if (typeof sortBy === 'string' && typeof sortingOrder === 'undefined') {
-            req.query.sortingOrder = 'ASC';
+        if (typeof sortBy === 'string' && typeof sortOrder === 'undefined') {
+            req.query.sortOrder = 'ASC';
             next();
             return;
         }
 
-        if (typeof sortBy === 'undefined' && typeof sortingOrder === 'string') {
+        if (typeof sortBy === 'undefined' && typeof sortOrder === 'string') {
             return ErrorHandler.sendErrorResponse(
                 res,
                 400,
-                'Received request with sortingOrder but without sortBy attribute',
+                'Received request with sortOrder but without sortBy attribute',
             );
         }
 
-        if (sortingOrder !== 'ASC' && sortingOrder !== 'DESC') {
+        if (sortOrder !== 'ASC' && sortOrder !== 'DESC') {
             return ErrorHandler.sendErrorResponse(
                 res,
                 400,
-                'Invalid sortingOrder. It must be "ASC" or "DESC"',
+                'Invalid sortOrder. It must be "ASC" or "DESC"',
             );
         }
 

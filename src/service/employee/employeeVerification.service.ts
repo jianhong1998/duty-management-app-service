@@ -1,8 +1,7 @@
-import {
+import IEmployee, {
     IEmployeeCreation,
     IEmployeeUpdate,
 } from '../../models/employee/employee.model';
-import EmployeeDBModel from '../../models/employee/employeeDBModel.model';
 import EmployeeRole from '../../models/employee/employeeRole.enum';
 import EmploymentType from '../../models/employee/employmentType.enum';
 
@@ -122,6 +121,15 @@ export default class EmployeeVerificationService {
             return false;
         }
 
-        return typeof EmployeeDBModel[key] !== 'undefined';
+        const validKeys: Array<keyof IEmployee> = [
+            'id',
+            'name',
+            'contactNumber',
+            'role',
+            'employmentType',
+            'isActive',
+        ];
+
+        return validKeys.includes(key as keyof IEmployee);
     }
 }

@@ -17,15 +17,21 @@ export default class EmployeeService {
         sort?: ISorting;
         transaction?: Transaction;
     }): Promise<IEmployee[]> {
-        const { pageNumber, pageSize } = options?.pagination;
+        const pageNumber = options?.pagination?.pageNumber;
+        const pageSize = options?.pagination?.pageSize;
+
+        const offset =
+            typeof pageNumber === 'number'
+                ? (pageNumber - 1) * pageSize
+                : undefined;
 
         const order: Order = options?.sort
-            ? [[options?.sort.sortBy, options?.sort.sortingOrder]]
+            ? [[options?.sort.sortBy, options?.sort.sortOrder]]
             : ['id'];
 
         const employees = await EmployeeDBModel.findAll({
             order,
-            offset: (pageNumber - 1) * pageSize,
+            offset,
             limit: pageSize,
             transaction: options?.transaction,
         });
@@ -47,17 +53,22 @@ export default class EmployeeService {
             transaction?: Transaction;
         },
     ): Promise<IEmployee[]> {
-        const { pageNumber, pageSize } = options?.pagination;
+        const pageNumber = options?.pagination?.pageNumber;
+        const pageSize = options?.pagination?.pageSize;
 
+        const offset =
+            typeof pageNumber === 'number'
+                ? (pageNumber - 1) * pageSize
+                : undefined;
         const order: Order = options?.sort
-            ? [[options?.sort.sortBy, options?.sort.sortingOrder]]
+            ? [[options?.sort.sortBy, options?.sort.sortOrder]]
             : ['id'];
 
         const employees = await EmployeeDBModel.findAll({
             where: condition,
             include: options?.include,
             order,
-            offset: (pageNumber - 1) * pageSize,
+            offset,
             limit: pageSize,
             transaction: options?.transaction,
         });
@@ -107,7 +118,9 @@ export default class EmployeeService {
             transaction,
         });
 
-        const employees = await this.getEmployees(condition);
+        const employees = await this.getEmployees(condition, {
+            transaction,
+        });
 
         return employees;
     }

@@ -55,10 +55,10 @@ export default class AdminEmployeeController {
         const pageSize = Number.parseInt(pageSizeInString);
 
         const sort: ISorting | undefined =
-            req.query.sortBy && req.query.sortingOrder
+            req.query.sortBy && req.query.sortOrder
                 ? {
                       sortBy: req.query.sortBy,
-                      sortingOrder: req.query.sortingOrder,
+                      sortOrder: req.query.sortOrder,
                   }
                 : undefined;
 

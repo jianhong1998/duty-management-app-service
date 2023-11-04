@@ -1,6 +1,6 @@
 export interface ISorting {
     sortBy: string;
-    sortingOrder: 'ASC' | 'DESC';
+    sortOrder: 'ASC' | 'DESC';
 }
 
 export interface ISortingRequestQuery extends ISorting {}
