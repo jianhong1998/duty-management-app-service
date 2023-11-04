@@ -73,7 +73,7 @@ jobs:
             - aws-ecs/update-service:
                   cluster-name: 'dutySimple-staging-ecs'
                   family: 'dutySimple-staging-task-defination'
-                  service-name: 'dutySimple-staging-service-2 '
+                  service-name: 'dutySimple-staging-service-3'
                   verify-revision-is-deployed: true
                   container-image-name-updates: 'container=dutySimple-staging-container,tag=$(cat version_file.txt)'
 
