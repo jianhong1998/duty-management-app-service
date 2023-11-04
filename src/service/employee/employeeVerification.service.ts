@@ -2,6 +2,7 @@ import {
     IEmployeeCreation,
     IEmployeeUpdate,
 } from '../../models/employee/employee.model';
+import EmployeeDBModel from '../../models/employee/employeeDBModel.model';
 import EmployeeRole from '../../models/employee/employeeRole.enum';
 import EmploymentType from '../../models/employee/employmentType.enum';
 
@@ -114,5 +115,13 @@ export default class EmployeeVerificationService {
         }
 
         return Object.values(EmployeeRole).includes(value as EmployeeRole);
+    }
+
+    public static isEmployeeSortingKeyValid(key: unknown): boolean {
+        if (typeof key !== 'string') {
+            return false;
+        }
+
+        return typeof EmployeeDBModel[key] !== 'undefined';
     }
 }

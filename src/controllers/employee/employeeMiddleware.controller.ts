@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
 import StandardResponse from '../../models/response/standardResponse.model';
 import IEmployee, {
     IEmployeeCreation,
@@ -7,6 +7,7 @@ import IEmployee, {
 import NumberChecker from '../../utils/numberChecker';
 import ErrorHandler from '../../service/errorHandler/errorHandler.service';
 import EmployeeVerificationService from '../../service/employee/employeeVerification.service';
+import IGetAllEmployeeRequestQuery from '../../models/request/employee/EmployeeRequestQuery.model';
 
 export default class EmployeeMiddleware {
     public static async verifyEmployeeId(
@@ -97,4 +98,51 @@ export default class EmployeeMiddleware {
 
         next();
     }
+
+    public static verifySortingInRequestQuery: RequestHandler<
+        any,
+        StandardResponse<any>,
+        any,
+        IGetAllEmployeeRequestQuery
+    > = (req, res, next) => {
+        const sortBy = req.query.sortBy;
+        const sortingOrder = req.query.sortingOrder;
+
+        if (!sortBy && !sortingOrder) {
+            next();
+            return;
+        }
+
+        if (typeof sortBy === 'string' && typeof sortingOrder === 'undefined') {
+            req.query.sortingOrder = 'ASC';
+            next();
+            return;
+        }
+
+        if (typeof sortBy === 'undefined' && typeof sortingOrder === 'string') {
+            return ErrorHandler.sendErrorResponse(
+                res,
+                400,
+                'Received request with sortingOrder but without sortBy attribute',
+            );
+        }
+
+        if (sortingOrder !== 'ASC' && sortingOrder !== 'DESC') {
+            return ErrorHandler.sendErrorResponse(
+                res,
+                400,
+                'Invalid sortingOrder. It must be "ASC" or "DESC"',
+            );
+        }
+
+        if (!EmployeeVerificationService.isEmployeeSortingKeyValid(sortBy)) {
+            return ErrorHandler.sendErrorResponse(
+                res,
+                400,
+                'Invalid key in sortBy request',
+            );
+        }
+
+        next();
+    };
 }
