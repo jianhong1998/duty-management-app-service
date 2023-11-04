@@ -3,6 +3,7 @@ import AdminEmployeeController from '../../controllers/employee/employee.admin.c
 import EmployeeMiddleware from '../../controllers/employee/employeeMiddleware.controller';
 import AuthMiddleware from '../../controllers/auth/authMiddleware.controller';
 import { UserAccountType } from '../../models/userAccount/userAccount.enum';
+import PaginationMiddleware from '../../controllers/pagination/paginationMiddleware.controller';
 
 const adminEmployeeRouter = Router();
 
@@ -10,7 +11,12 @@ adminEmployeeRouter.use(AuthMiddleware.authorized([UserAccountType.ADMIN]));
 
 adminEmployeeRouter.use('/', EmployeeMiddleware.verifyRequestBody);
 
-adminEmployeeRouter.get('/', AdminEmployeeController.getAllEmployeesHandler);
+adminEmployeeRouter.get(
+    '/',
+    PaginationMiddleware.verifyPaginationQuery,
+    EmployeeMiddleware.verifySortingInRequestQuery,
+    AdminEmployeeController.getAllEmployeesHandler,
+);
 
 adminEmployeeRouter.post('/', AdminEmployeeController.createEmployeeHandler);
 

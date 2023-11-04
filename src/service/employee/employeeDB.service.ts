@@ -1,18 +1,39 @@
-import { IncludeOptions, Transaction, WhereOptions } from 'sequelize';
+import { IncludeOptions, Order, Transaction, WhereOptions } from 'sequelize';
 import IEmployee, {
     IEmployeeCreation,
     IEmployeeUpdate,
 } from '../../models/employee/employee.model';
 import EmployeeDBModel from '../../models/employee/employeeDBModel.model';
+import { IPagination } from '../../models/request/paginationRequest.model';
+import { ISorting } from '../../models/request/sortingRequest.model';
 
 export default class EmployeeService {
     /**
      * Get all employees
      * @returns IEmployee Array
      */
-    public static async getAllEmployees(): Promise<IEmployee[]> {
+    public static async getAllEmployees(options?: {
+        pagination?: IPagination;
+        sort?: ISorting;
+        transaction?: Transaction;
+    }): Promise<IEmployee[]> {
+        const pageNumber = options?.pagination?.pageNumber;
+        const pageSize = options?.pagination?.pageSize;
+
+        const offset =
+            typeof pageNumber === 'number'
+                ? (pageNumber - 1) * pageSize
+                : undefined;
+
+        const order: Order = options?.sort
+            ? [[options?.sort.sortBy, options?.sort.sortOrder]]
+            : ['id'];
+
         const employees = await EmployeeDBModel.findAll({
-            order: ['id'],
+            order,
+            offset,
+            limit: pageSize,
+            transaction: options?.transaction,
         });
 
         return employees.map((employee) => employee.dataValues);
@@ -27,11 +48,29 @@ export default class EmployeeService {
         condition: WhereOptions<IEmployee>,
         options?: {
             include?: IncludeOptions[];
+            pagination?: IPagination;
+            sort?: ISorting;
+            transaction?: Transaction;
         },
     ): Promise<IEmployee[]> {
+        const pageNumber = options?.pagination?.pageNumber;
+        const pageSize = options?.pagination?.pageSize;
+
+        const offset =
+            typeof pageNumber === 'number'
+                ? (pageNumber - 1) * pageSize
+                : undefined;
+        const order: Order = options?.sort
+            ? [[options?.sort.sortBy, options?.sort.sortOrder]]
+            : ['id'];
+
         const employees = await EmployeeDBModel.findAll({
             where: condition,
             include: options?.include,
+            order,
+            offset,
+            limit: pageSize,
+            transaction: options?.transaction,
         });
 
         return employees.map((employee) => employee.dataValues);
@@ -79,7 +118,9 @@ export default class EmployeeService {
             transaction,
         });
 
-        const employees = await this.getEmployees(condition);
+        const employees = await this.getEmployees(condition, {
+            transaction,
+        });
 
         return employees;
     }
@@ -107,5 +148,17 @@ export default class EmployeeService {
         );
 
         return employees;
+    }
+
+    public static async countEmployees(options?: {
+        condition?: WhereOptions<EmployeeDBModel>;
+        transaction?: Transaction;
+    }): Promise<number> {
+        const numberOfEmplyees = await EmployeeDBModel.count({
+            where: options?.condition,
+            transaction: options?.transaction,
+        });
+
+        return numberOfEmplyees;
     }
 }
