@@ -11,17 +11,29 @@ import { WhereOptions } from 'sequelize';
 import EmployeeConvertorService from '../../service/employee/employeeConvertor.service';
 import db from '../../sequelize/sequelize';
 import UserAccountService from '../../service/userAccount/userAccountDB.service';
+import IGetAllEmployeeRequestQuery from '../../models/request/employee/EmployeeRequestQuery.model';
+import { ISorting } from '../../models/request/sortingRequest.model';
+import { IPaginationResponse } from '../../models/response/paginationResponse.model';
 
 export default class AdminEmployeeController {
     public static async getAllEmployeesHandler(
-        req: Request<undefined, any, undefined, { isActive?: string }>,
-        res: Response<StandardResponse<IEmployeeResponse[]>>,
+        req: Request<undefined, any, undefined, IGetAllEmployeeRequestQuery>,
+        res: Response<
+            StandardResponse<{
+                employees: IEmployeeResponse[];
+                paginationInfo: IPaginationResponse;
+            }>
+        >,
     ) {
-        const { isActive: isActiveString } = req.query;
+        const {
+            isActive: isActiveInString,
+            pageNumber: pageNumberInString,
+            pageSize: pageSizeInString,
+        } = req.query;
 
         let isActive: boolean | undefined;
 
-        switch (isActiveString) {
+        switch (isActiveInString) {
             case 'true':
                 isActive = true;
                 break;
@@ -39,11 +51,51 @@ export default class AdminEmployeeController {
                 );
         }
 
+        const pageNumber = Number.parseInt(pageNumberInString);
+        const pageSize = Number.parseInt(pageSizeInString);
+
+        const sort: ISorting | undefined =
+            req.query.sortBy && req.query.sortOrder
+                ? {
+                      sortBy: req.query.sortBy,
+                      sortOrder: req.query.sortOrder,
+                  }
+                : undefined;
+
         try {
+            const countEmployeesOptions =
+                typeof isActive === 'boolean'
+                    ? { condition: { isActive } }
+                    : undefined;
+
+            const totalEmployees = await EmployeeService.countEmployees(
+                countEmployeesOptions,
+            );
+
+            const totalPages = Math.ceil(totalEmployees / pageSize);
+
+            const paginationInfo: IPaginationResponse = {
+                totalPages,
+                pageSize,
+                totalRecords: totalEmployees,
+                currentPage: pageNumber,
+                prevPage: pageNumber === 1 ? null : pageNumber - 1,
+                nextPage: pageNumber === totalPages ? null : pageNumber + 1,
+            };
+
             if (typeof isActive !== 'undefined') {
-                const employees = await EmployeeService.getEmployees({
-                    isActive,
-                });
+                const employees = await EmployeeService.getEmployees(
+                    {
+                        isActive,
+                    },
+                    {
+                        pagination: {
+                            pageNumber,
+                            pageSize,
+                        },
+                        sort,
+                    },
+                );
 
                 const employeeResponses: IEmployeeResponse[] = employees.map(
                     (employee) => {
@@ -54,20 +106,26 @@ export default class AdminEmployeeController {
                 );
 
                 return res.status(200).send({
-                    data: employeeResponses,
+                    data: { employees: employeeResponses, paginationInfo },
                     isSuccess: true,
                 });
             }
 
-            const employees = await EmployeeService.getAllEmployees();
+            const employees = await EmployeeService.getAllEmployees({
+                pagination: { pageNumber, pageSize },
+                sort,
+            });
 
             return res.status(200).send({
-                data: employees.map((employee) =>
-                    EmployeeConvertorService.convertToIEmployeeResponse(
-                        employee,
-                    ),
-                ),
                 isSuccess: true,
+                data: {
+                    employees: employees.map((employee) =>
+                        EmployeeConvertorService.convertToIEmployeeResponse(
+                            employee,
+                        ),
+                    ),
+                    paginationInfo,
+                },
             });
         } catch (error) {
             const errorMessage = ErrorHandler.getErrorMessage(error);

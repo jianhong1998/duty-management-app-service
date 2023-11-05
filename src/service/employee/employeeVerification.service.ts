@@ -1,4 +1,4 @@
-import {
+import IEmployee, {
     IEmployeeCreation,
     IEmployeeUpdate,
 } from '../../models/employee/employee.model';
@@ -114,5 +114,22 @@ export default class EmployeeVerificationService {
         }
 
         return Object.values(EmployeeRole).includes(value as EmployeeRole);
+    }
+
+    public static isEmployeeSortingKeyValid(key: unknown): boolean {
+        if (typeof key !== 'string') {
+            return false;
+        }
+
+        const validKeys: Array<keyof IEmployee> = [
+            'id',
+            'name',
+            'contactNumber',
+            'role',
+            'employmentType',
+            'isActive',
+        ];
+
+        return validKeys.includes(key as keyof IEmployee);
     }
 }
