@@ -5,9 +5,14 @@ export default class TokenService {
     private static readonly DUMMY_JWT_SECRET = 'jwt123';
 
     static generateToken(payload: ITokenPayload): string {
+        const expireTimeInString = process.env.JWT_EXPIRE_IN_SECONDS || '3600';
+
         return jwt.sign(
             payload,
             process.env.JWT_SECRET || this.DUMMY_JWT_SECRET,
+            {
+                expiresIn: Number.parseInt(expireTimeInString),
+            },
         );
     }
 
