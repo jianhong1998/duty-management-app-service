@@ -2,9 +2,11 @@ import { IncludeOptions, Op, Transaction, WhereOptions } from 'sequelize';
 import MonthInfo from '../../models/monthlyDutySchedule/monthInfo.model';
 import IMonthlyDutySchedule from '../../models/monthlyDutySchedule/monthlyDutySchedule.model';
 import MonthlyDutyScheduleDBModel from '../../models/monthlyDutySchedule/monthlyDutyScheduleDBModel.model';
-import MonthlyDutyScheduleGeneratorService from './monthlyDutyScheduleGenerator.service';
 import DateUtil from '../../utils/date/dateUtil';
 import EmployeeDBModel from '../../models/employee/employeeDBModel.model';
+import MonthlyDutyScheduleGeneratorService from './monthlyDutyScheduleGenerator_2.service';
+import EmployeeService from '../employee/employeeDB.service';
+import TimeSlotService from '../timeSlot/timeSlotDB.service';
 
 export enum WeekDay {
     MONDAY = 'mon',
@@ -23,11 +25,31 @@ export default class MonthlyDutyScheduleService {
             transaction?: Transaction;
         },
     ): Promise<IMonthlyDutySchedule[]> {
-        // ) {
-        const monthlyDutyScheduleCreations =
-            await MonthlyDutyScheduleGeneratorService.generateMonthlyDutySchedule(
+        const employees = await EmployeeService.getEmployees(
+            {
+                isActive: true,
+            },
+            { transaction: options.transaction },
+        );
+        const timeSlots = await TimeSlotService.getTimeSlots(
+            {
+                isDeleted: false,
+            },
+            {
+                transaction: options.transaction,
+            },
+        );
+
+        const monthlyDutyScheduleGeneratorService =
+            new MonthlyDutyScheduleGeneratorService({
+                employees,
                 monthInfo,
-            );
+                timeSlots,
+                transaction: options.transaction,
+            });
+
+        const monthlyDutyScheduleCreations =
+            monthlyDutyScheduleGeneratorService.generateMonthlyDutySchedule();
 
         const createdMonthlyDutySchedules =
             await MonthlyDutyScheduleDBModel.bulkCreate(
