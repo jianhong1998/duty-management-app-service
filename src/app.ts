@@ -1,12 +1,9 @@
 import cors from 'cors';
 import express from 'express';
-import dotenv from 'dotenv';
 import db from './sequelize/sequelize';
 import bodyParser, { json } from 'body-parser';
 import indexRouter from './routes/index.router';
 import isSequelizeError from './sequelize/sequelizeErrorVerification.service';
-
-dotenv.config();
 
 db.init();
 

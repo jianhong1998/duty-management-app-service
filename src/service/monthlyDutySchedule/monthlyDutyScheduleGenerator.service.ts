@@ -1,545 +1,305 @@
-import moment from 'moment';
+import { Transaction } from 'sequelize';
 import IEmployee from '../../models/employee/employee.model';
-import MonthInfo from '../../models/monthlyDutySchedule/monthInfo.model';
-import TimeSlotDBModel from '../../models/timeSlot/timeSlotDBModel.model';
-import EmployeeService from '../employee/employeeDB.service';
-import { WeekDay } from './monthlyDutyScheduleDB.service';
-import { ITimeSlot } from '../../models/timeSlot/timeSlot.model';
-import { IMonthlyDutyScheduleCreation } from '../../models/monthlyDutySchedule/monthlyDutySchedule.model';
-import DateUtil from '../../utils/date/dateUtil';
-import TimeSlotService from '../timeSlot/timeSlotDB.service';
 import EmployeeRole from '../../models/employee/employeeRole.enum';
-import {
-    MAX_EMPLOYEE_PER_DAY,
-    MIN_EMPLOYEE_IN_EARLIEST_SHIFT,
-} from '../../constants/systemConfig';
+import EmploymentType from '../../models/employee/employmentType.enum';
+import { ITimeSlot } from '../../models/timeSlot/timeSlot.model';
+import { WeekDay } from './monthlyDutyScheduleDB.service';
+import MonthInfo from '../../models/monthlyDutySchedule/monthInfo.model';
+import moment, { Moment } from 'moment';
+import DateUtil from '../../utils/date/dateUtil';
+import { IMonthlyDutyScheduleCreation } from '../../models/monthlyDutySchedule/monthlyDutySchedule.model';
+import { MAX_EMPLOYEE_PER_DAY } from '../../constants/systemConfig';
 import ArrayUtil from '../../utils/array/ArrayUtil';
 import NumberUtil from '../../utils/number/NumberUtil';
 
 export default class MonthlyDutyScheduleGeneratorService {
-    public static async generateMonthlyDutySchedule(
-        monthInfo: MonthInfo,
-    ): Promise<IMonthlyDutyScheduleCreation[]> {
-        const twoDigitMonthString = monthInfo.month.toString().padStart(2, '0');
+    private readonly employeeMap = new Map<number, IEmployee>();
 
-        const firstDayDateString = `${monthInfo.year}-${twoDigitMonthString}-01`;
+    // All Lead Service Crew
+    private readonly leadEmployeeIdArray: number[] = [];
 
-        const resultArray: IMonthlyDutyScheduleCreation[] = [];
+    // Full Time Service Crew except Lead Service Crew
+    private readonly fullTimeEmployeeIdArray: number[] = [];
 
-        const employees = await EmployeeService.getEmployees(
-            {
-                isActive: true,
-            },
-            {
-                include: [
-                    {
-                        model: TimeSlotDBModel,
-                        as: 'monAvailabilityTimeSlotDBModel',
-                    },
-                    {
-                        model: TimeSlotDBModel,
-                        as: 'tueAvailabilityTimeSlotDBModel',
-                    },
-                    {
-                        model: TimeSlotDBModel,
-                        as: 'wedAvailabilityTimeSlotDBModel',
-                    },
-                    {
-                        model: TimeSlotDBModel,
-                        as: 'thuAvailabilityTimeSlotDBModel',
-                    },
-                    {
-                        model: TimeSlotDBModel,
-                        as: 'friAvailabilityTimeSlotDBModel',
-                    },
-                    {
-                        model: TimeSlotDBModel,
-                        as: 'satAvailabilityTimeSlotDBModel',
-                    },
-                    {
-                        model: TimeSlotDBModel,
-                        as: 'sunAvailabilityTimeSlotDBModel',
-                    },
-                ],
-            },
+    // Part Time Service Crew except Lead Service Crew
+    private readonly partTimeEmployeeIdArray: number[] = [];
+
+    // Employee map - Key (weekday), Value ({employeeId, timeSlotId})
+    private readonly employeeAvailabilityMap = new Map<
+        WeekDay,
+        Array<{ employeeId: number; timeSlotId: number }>
+    >();
+
+    private readonly timeSlotMap = new Map<number, ITimeSlot>();
+    private readonly timeSlotAvailableMap = new Map<WeekDay, number[]>();
+
+    private readonly firstDate: Moment;
+    private readonly lastDate: Moment;
+
+    private readonly transaction?: Transaction;
+
+    constructor({
+        employees,
+        timeSlots,
+        transaction,
+        monthInfo,
+    }: {
+        employees: IEmployee[];
+        timeSlots: ITimeSlot[];
+        transaction?: Transaction;
+        monthInfo: MonthInfo;
+    }) {
+        this.transaction = transaction;
+
+        const monthString = monthInfo.month.toString().padStart(2, '0');
+        const lastDate = DateUtil.getMonthLastDay(
+            monthInfo.year,
+            monthInfo.month,
         );
 
-        const employeeMap = this.convertEmployeesToEmployeeMap(employees);
-        const availabilityMap = this.generateEmployeeAvailabilityMap(employees);
-        const timeSlotMap = await this.generateTimeSlotMap();
+        const firstDate = moment(`${monthInfo.year}-${monthString}-01`);
+        this.firstDate = firstDate;
+        this.lastDate = moment(`${monthInfo.year}-${monthString}-${lastDate}`);
+
+        this.initialiseEmployeeMap(employees);
+        this.initialiseTimeSlotMap(timeSlots);
+    }
+
+    public generateMonthlyDutySchedule(): IMonthlyDutyScheduleCreation[] {
+        const resultArray: IMonthlyDutyScheduleCreation[] = [];
 
         for (
-            const date = moment(firstDayDateString);
-            date.month() === monthInfo.month - 1;
-            date.add(1, 'd')
+            let date = this.firstDate;
+            date.isSameOrBefore(this.lastDate);
+            date.add(1, 'day')
         ) {
             const weekday = DateUtil.convertMomentWeekdayToEnumWeekDay(
                 date.weekday(),
             );
 
-            const availableEmployeeMap = availabilityMap.get(weekday);
+            const employeeArrayForThisDate: IMonthlyDutyScheduleCreation[] = [];
 
-            if (availableEmployeeMap.size === 0) {
-                continue;
-            }
+            const availableEmployees =
+                this.employeeAvailabilityMap.get(weekday);
 
-            const timeSlotIds = [...availableEmployeeMap.keys()].sort(
-                (a, b) => {
-                    const startTimeA = moment(
-                        timeSlotMap.get(a).startTime.toISOString(),
-                    );
-                    const startTimeB = moment(
-                        timeSlotMap.get(b).startTime.toISOString(),
-                    );
+            const leadEmployees =
+                availableEmployees?.filter(({ employeeId }) =>
+                    this.leadEmployeeIdArray.includes(employeeId),
+                ) || [];
 
-                    return startTimeA.isAfter(startTimeB) ? 1 : -1;
-                },
-            );
+            const fullTimeEmployees =
+                availableEmployees?.filter(({ employeeId }) =>
+                    this.fullTimeEmployeeIdArray.includes(employeeId),
+                ) || [];
 
-            const dutyEmployeesForTheDay: IMonthlyDutyScheduleCreation[] = [];
-
-            const employeeIdsAvailableForFirstShift = availableEmployeeMap.get(
-                timeSlotIds[0],
-            );
-
-            const {
-                dutyScheduleCreationArrayForFirstShift,
-                pickedEmployeeIds,
-            } = this.generateEmployeesForFirstShift({
-                date: date.toDate(),
-                availableEmployeeIds: employeeIdsAvailableForFirstShift,
-                employeeMap,
-                firstShiftTimeSlotId: timeSlotIds[0],
-                numberOfEmployeeNeeded: MIN_EMPLOYEE_IN_EARLIEST_SHIFT,
-            });
-
-            dutyEmployeesForTheDay.push(
-                ...dutyScheduleCreationArrayForFirstShift,
-            );
-
-            const availableEmployeeIds: Array<{
-                employeeId: number;
-                timeSlotId: number;
-            }> = [];
-
-            availableEmployeeMap.forEach((ids, timeSlotId) =>
-                availableEmployeeIds.push(
-                    ...ids.map((id) => ({ employeeId: id, timeSlotId })),
-                ),
-            );
-
-            availableEmployeeIds.filter(({ employeeId }) =>
-                pickedEmployeeIds.includes(employeeId),
-            );
+            const partTimeEmployees =
+                availableEmployees?.filter(({ employeeId }) =>
+                    this.partTimeEmployeeIdArray.includes(employeeId),
+                ) || [];
 
             while (
-                dutyEmployeesForTheDay.length < MAX_EMPLOYEE_PER_DAY &&
-                availableEmployeeIds.length > 0
+                employeeArrayForThisDate.length < MAX_EMPLOYEE_PER_DAY &&
+                (leadEmployees.length > 0 ||
+                    fullTimeEmployees.length > 0 ||
+                    partTimeEmployees.length > 0)
             ) {
-                const index = NumberUtil.generateRandomInteger(
-                    0,
-                    availableEmployeeIds.length - 1,
-                );
+                if (leadEmployees.length > 0) {
+                    const randomIndex = NumberUtil.generateRandomInteger(
+                        0,
+                        leadEmployees.length,
+                    );
 
-                ArrayUtil.swap<{ employeeId: number; timeSlotId: number }>(
-                    availableEmployeeIds,
-                    0,
-                    index,
-                );
+                    ArrayUtil.swap(leadEmployees, 0, randomIndex);
 
-                const {
-                    timeSlotId: pickedTimeSlotId,
-                    employeeId: pickedEmployeeId,
-                } = availableEmployeeIds.shift();
+                    const { employeeId, timeSlotId } = leadEmployees.shift();
 
-                dutyEmployeesForTheDay.push({
-                    date: date.toDate(),
-                    employeeId: pickedEmployeeId,
-                    timeSlotId: pickedTimeSlotId,
-                });
+                    employeeArrayForThisDate.push({
+                        date: date.toDate(),
+                        employeeId,
+                        timeSlotId,
+                    });
+                } else if (fullTimeEmployees.length > 0) {
+                    const randomIndex = NumberUtil.generateRandomInteger(
+                        0,
+                        fullTimeEmployees.length,
+                    );
+
+                    ArrayUtil.swap(fullTimeEmployees, 0, randomIndex);
+
+                    const { employeeId, timeSlotId } =
+                        fullTimeEmployees.shift();
+
+                    employeeArrayForThisDate.push({
+                        date: date.toDate(),
+                        employeeId,
+                        timeSlotId,
+                    });
+                } else {
+                    const randomIndex = NumberUtil.generateRandomInteger(
+                        0,
+                        partTimeEmployees.length,
+                    );
+
+                    ArrayUtil.swap(partTimeEmployees, 0, randomIndex);
+
+                    const { employeeId, timeSlotId } =
+                        partTimeEmployees.shift();
+
+                    employeeArrayForThisDate.push({
+                        date: date.toDate(),
+                        employeeId,
+                        timeSlotId,
+                    });
+                }
             }
 
-            resultArray.push(...dutyEmployeesForTheDay);
+            resultArray.push(...employeeArrayForThisDate);
         }
 
         return resultArray;
     }
 
-    private static convertEmployeesToEmployeeMap(
-        employees: IEmployee[],
-    ): Map<IEmployee['id'], IEmployee> {
-        return new Map(employees.map((employee) => [employee.id, employee]));
-    }
-
-    private static generateEmployeeAvailabilityMap(
-        employees: IEmployee[],
-    ): Map<WeekDay, Map<ITimeSlot['id'], Array<IEmployee['id']>>> {
-        const employeeMap = new Map<number, IEmployee>();
-        const employeeAvailabilityMap = new Map<
-            WeekDay,
-            Map<ITimeSlot['id'], Array<IEmployee['id']>>
-        >([
-            [WeekDay.MONDAY, new Map()],
-            [WeekDay.TUESDAY, new Map()],
-            [WeekDay.WEDNESDAY, new Map()],
-            [WeekDay.THURSDAY, new Map()],
-            [WeekDay.FRIDAY, new Map()],
-            [WeekDay.SATURDAY, new Map()],
-            [WeekDay.SUNDAY, new Map()],
-        ]);
-
+    private initialiseEmployeeMap(employees: IEmployee[]): void {
         employees.forEach((employee) => {
-            employeeMap.set(employee.id, employee);
-
-            this.fillUpEmployeeAvailabilityMap(
-                employee,
-                employeeAvailabilityMap,
-            );
-        });
-
-        return employeeAvailabilityMap;
-    }
-
-    private static fillUpEmployeeAvailabilityMap(
-        employee: IEmployee,
-        availabilityMap: Map<
-            WeekDay,
-            Map<ITimeSlot['id'], Array<IEmployee['id']>>
-        >,
-    ): void {
-        const {
-            monAvailabilityTimeSlot,
-            tueAvailabilityTimeSlot,
-            wedAvailabilityTimeSlot,
-            thuAvailabilityTimeSlot,
-            friAvailabilityTimeSlot,
-            satAvailabilityTimeSlot,
-            sunAvailabilityTimeSlot,
-        } = employee;
-
-        if (monAvailabilityTimeSlot) {
-            if (!availabilityMap.has(WeekDay.MONDAY)) {
-                availabilityMap.set(
-                    WeekDay.MONDAY,
-                    new Map([[monAvailabilityTimeSlot.id, [employee.id]]]),
-                );
-            }
-
-            if (
-                availabilityMap.has(WeekDay.MONDAY) &&
-                availabilityMap
-                    .get(WeekDay.MONDAY)
-                    .has(monAvailabilityTimeSlot.id)
-            ) {
-                availabilityMap
-                    .get(WeekDay.MONDAY)
-                    .get(monAvailabilityTimeSlot.id)
-                    .push(employee.id);
-            }
-
-            if (
-                availabilityMap.has(WeekDay.MONDAY) &&
-                !availabilityMap
-                    .get(WeekDay.MONDAY)
-                    .has(monAvailabilityTimeSlot.id)
-            ) {
-                availabilityMap
-                    .get(WeekDay.MONDAY)
-                    .set(monAvailabilityTimeSlot.id, [employee.id]);
-            }
-        }
-
-        if (tueAvailabilityTimeSlot) {
-            if (!availabilityMap.has(WeekDay.TUESDAY)) {
-                availabilityMap.set(
-                    WeekDay.TUESDAY,
-                    new Map([[tueAvailabilityTimeSlot.id, [employee.id]]]),
-                );
-            }
-
-            if (
-                availabilityMap.has(WeekDay.TUESDAY) &&
-                availabilityMap
-                    .get(WeekDay.TUESDAY)
-                    .has(tueAvailabilityTimeSlot.id)
-            ) {
-                availabilityMap
-                    .get(WeekDay.TUESDAY)
-                    .get(tueAvailabilityTimeSlot.id)
-                    .push(employee.id);
-            }
-
-            if (
-                availabilityMap.has(WeekDay.TUESDAY) &&
-                !availabilityMap
-                    .get(WeekDay.TUESDAY)
-                    .has(tueAvailabilityTimeSlot.id)
-            ) {
-                availabilityMap
-                    .get(WeekDay.TUESDAY)
-                    .set(tueAvailabilityTimeSlot.id, [employee.id]);
-            }
-        }
-
-        if (wedAvailabilityTimeSlot) {
-            if (!availabilityMap.has(WeekDay.WEDNESDAY)) {
-                availabilityMap.set(
-                    WeekDay.WEDNESDAY,
-                    new Map([[wedAvailabilityTimeSlot.id, [employee.id]]]),
-                );
-            }
-
-            if (
-                availabilityMap.has(WeekDay.WEDNESDAY) &&
-                availabilityMap
-                    .get(WeekDay.WEDNESDAY)
-                    .has(wedAvailabilityTimeSlot.id)
-            ) {
-                availabilityMap
-                    .get(WeekDay.WEDNESDAY)
-                    .get(wedAvailabilityTimeSlot.id)
-                    .push(employee.id);
-            }
-
-            if (
-                availabilityMap.has(WeekDay.WEDNESDAY) &&
-                !availabilityMap
-                    .get(WeekDay.WEDNESDAY)
-                    .has(wedAvailabilityTimeSlot.id)
-            ) {
-                availabilityMap
-                    .get(WeekDay.WEDNESDAY)
-                    .set(wedAvailabilityTimeSlot.id, [employee.id]);
-            }
-        }
-
-        if (thuAvailabilityTimeSlot) {
-            if (!availabilityMap.has(WeekDay.THURSDAY)) {
-                availabilityMap.set(
-                    WeekDay.THURSDAY,
-                    new Map([[thuAvailabilityTimeSlot.id, [employee.id]]]),
-                );
-            }
-
-            if (
-                availabilityMap.has(WeekDay.THURSDAY) &&
-                availabilityMap
-                    .get(WeekDay.THURSDAY)
-                    .has(thuAvailabilityTimeSlot.id)
-            ) {
-                availabilityMap
-                    .get(WeekDay.THURSDAY)
-                    .get(thuAvailabilityTimeSlot.id)
-                    .push(employee.id);
-            }
-
-            if (
-                availabilityMap.has(WeekDay.THURSDAY) &&
-                !availabilityMap
-                    .get(WeekDay.THURSDAY)
-                    .has(thuAvailabilityTimeSlot.id)
-            ) {
-                availabilityMap
-                    .get(WeekDay.THURSDAY)
-                    .set(thuAvailabilityTimeSlot.id, [employee.id]);
-            }
-        }
-
-        if (friAvailabilityTimeSlot) {
-            if (!availabilityMap.has(WeekDay.FRIDAY)) {
-                availabilityMap.set(
-                    WeekDay.FRIDAY,
-                    new Map([[friAvailabilityTimeSlot.id, [employee.id]]]),
-                );
-            }
-
-            if (
-                availabilityMap.has(WeekDay.FRIDAY) &&
-                availabilityMap
-                    .get(WeekDay.FRIDAY)
-                    .has(friAvailabilityTimeSlot.id)
-            ) {
-                availabilityMap
-                    .get(WeekDay.FRIDAY)
-                    .get(friAvailabilityTimeSlot.id)
-                    .push(employee.id);
-            }
-
-            if (
-                availabilityMap.has(WeekDay.FRIDAY) &&
-                !availabilityMap
-                    .get(WeekDay.FRIDAY)
-                    .has(friAvailabilityTimeSlot.id)
-            ) {
-                availabilityMap
-                    .get(WeekDay.FRIDAY)
-                    .set(friAvailabilityTimeSlot.id, [employee.id]);
-            }
-        }
-
-        if (satAvailabilityTimeSlot) {
-            if (!availabilityMap.has(WeekDay.SATURDAY)) {
-                availabilityMap.set(
-                    WeekDay.SATURDAY,
-                    new Map([[satAvailabilityTimeSlot.id, [employee.id]]]),
-                );
-            }
-
-            if (
-                availabilityMap.has(WeekDay.SATURDAY) &&
-                availabilityMap
-                    .get(WeekDay.SATURDAY)
-                    .has(satAvailabilityTimeSlot.id)
-            ) {
-                availabilityMap
-                    .get(WeekDay.SATURDAY)
-                    .get(satAvailabilityTimeSlot.id)
-                    .push(employee.id);
-            }
-
-            if (
-                availabilityMap.has(WeekDay.SATURDAY) &&
-                !availabilityMap
-                    .get(WeekDay.SATURDAY)
-                    .has(satAvailabilityTimeSlot.id)
-            ) {
-                availabilityMap
-                    .get(WeekDay.SATURDAY)
-                    .set(satAvailabilityTimeSlot.id, [employee.id]);
-            }
-        }
-
-        if (sunAvailabilityTimeSlot) {
-            if (!availabilityMap.has(WeekDay.SUNDAY)) {
-                availabilityMap.set(
-                    WeekDay.SUNDAY,
-                    new Map([[sunAvailabilityTimeSlot.id, [employee.id]]]),
-                );
-            }
-
-            if (
-                availabilityMap.has(WeekDay.SUNDAY) &&
-                availabilityMap
-                    .get(WeekDay.SUNDAY)
-                    .has(sunAvailabilityTimeSlot.id)
-            ) {
-                availabilityMap
-                    .get(WeekDay.SUNDAY)
-                    .get(sunAvailabilityTimeSlot.id)
-                    .push(employee.id);
-            }
-
-            if (
-                availabilityMap.has(WeekDay.SUNDAY) &&
-                !availabilityMap
-                    .get(WeekDay.SUNDAY)
-                    .has(sunAvailabilityTimeSlot.id)
-            ) {
-                availabilityMap
-                    .get(WeekDay.SUNDAY)
-                    .set(sunAvailabilityTimeSlot.id, [employee.id]);
-            }
-        }
-    }
-
-    private static generateEmployeesForFirstShift(params: {
-        numberOfEmployeeNeeded: number;
-        availableEmployeeIds: number[];
-        employeeMap: Map<IEmployee['id'], IEmployee>;
-        date: Date;
-        firstShiftTimeSlotId: number;
-    }): {
-        dutyScheduleCreationArrayForFirstShift: IMonthlyDutyScheduleCreation[];
-        pickedEmployeeIds: number[];
-    } {
-        const dutyScheduleCreationArrayForFirstShift: IMonthlyDutyScheduleCreation[] =
-            [];
-        const pickedEmployeeIds: number[] = [];
-
-        const {
-            availableEmployeeIds,
-            employeeMap,
-            numberOfEmployeeNeeded,
-            date,
-            firstShiftTimeSlotId,
-        } = params;
-
-        let index = 0;
-
-        while (
-            index < availableEmployeeIds.length &&
-            dutyScheduleCreationArrayForFirstShift.length === 0 &&
-            availableEmployeeIds.length > 0
-        ) {
-            const employee = employeeMap.get(availableEmployeeIds[index]);
-
             if (employee.role === EmployeeRole.LEAD) {
-                pickedEmployeeIds.push(employee.id);
-                dutyScheduleCreationArrayForFirstShift.push({
-                    date,
-                    timeSlotId: firstShiftTimeSlotId,
-                    employeeId: employee.id,
-                });
-
-                ArrayUtil.swap<number>(availableEmployeeIds, 0, index);
-
-                availableEmployeeIds.shift();
+                this.leadEmployeeIdArray.push(employee.id);
+            } else if (employee.employmentType === EmploymentType.FULL_TIME) {
+                this.fullTimeEmployeeIdArray.push(employee.id);
+            } else {
+                this.partTimeEmployeeIdArray.push(employee.id);
             }
 
-            index++;
-        }
+            if (employee.monAvailabilityTimeSlotId) {
+                this.setEmployeeIntoAvaialbilityMap(
+                    WeekDay.MONDAY,
+                    employee.id,
+                    employee.monAvailabilityTimeSlotId,
+                );
+            }
 
-        while (
-            dutyScheduleCreationArrayForFirstShift.length <
-                numberOfEmployeeNeeded &&
-            availableEmployeeIds.length > 0
-        ) {
-            index = NumberUtil.generateRandomInteger(
-                0,
-                availableEmployeeIds.length - 1,
-            );
+            if (employee.tueAvailabilityTimeSlotId) {
+                this.setEmployeeIntoAvaialbilityMap(
+                    WeekDay.TUESDAY,
+                    employee.id,
+                    employee.tueAvailabilityTimeSlotId,
+                );
+            }
 
-            ArrayUtil.swap<number>(availableEmployeeIds, 0, index);
+            if (employee.wedAvailabilityTimeSlotId) {
+                this.setEmployeeIntoAvaialbilityMap(
+                    WeekDay.WEDNESDAY,
+                    employee.id,
+                    employee.wedAvailabilityTimeSlotId,
+                );
+            }
 
-            const employeeId = availableEmployeeIds.shift();
+            if (employee.thuAvailabilityTimeSlotId) {
+                this.setEmployeeIntoAvaialbilityMap(
+                    WeekDay.THURSDAY,
+                    employee.id,
+                    employee.thuAvailabilityTimeSlotId,
+                );
+            }
 
-            dutyScheduleCreationArrayForFirstShift.push({
-                date,
-                employeeId,
-                timeSlotId: firstShiftTimeSlotId,
-            });
+            if (employee.friAvailabilityTimeSlotId) {
+                this.setEmployeeIntoAvaialbilityMap(
+                    WeekDay.FRIDAY,
+                    employee.id,
+                    employee.friAvailabilityTimeSlotId,
+                );
+            }
 
-            pickedEmployeeIds.push(employeeId);
-        }
+            if (employee.satAvailabilityTimeSlotId) {
+                this.setEmployeeIntoAvaialbilityMap(
+                    WeekDay.SATURDAY,
+                    employee.id,
+                    employee.satAvailabilityTimeSlotId,
+                );
+            }
 
-        if (pickedEmployeeIds.includes(undefined)) {
-            console.log({
-                date,
-                pickedEmployeeIds,
-            });
+            if (employee.sunAvailabilityTimeSlotId) {
+                this.setEmployeeIntoAvaialbilityMap(
+                    WeekDay.SUNDAY,
+                    employee.id,
+                    employee.sunAvailabilityTimeSlotId,
+                );
+            }
 
-            throw new Error('pickedEmployeeIds include undefined.');
-        }
-
-        return {
-            dutyScheduleCreationArrayForFirstShift,
-            pickedEmployeeIds,
-        };
+            this.employeeMap.set(employee.id, employee);
+        });
     }
 
-    private static async generateTimeSlotMap(): Promise<
-        Map<ITimeSlot['id'], ITimeSlot>
-    > {
-        const timeSlots = await TimeSlotService.getTimeSlots({
-            isDeleted: false,
-        });
-
-        const map = new Map<ITimeSlot['id'], ITimeSlot>();
-
+    private initialiseTimeSlotMap(timeSlots: ITimeSlot[]): void {
         timeSlots.forEach((timeSlot) => {
-            map.set(timeSlot.id, timeSlot);
-        });
+            this.timeSlotMap.set(timeSlot.id, timeSlot);
 
-        return map;
+            if (timeSlot.isAvailableForMon) {
+                this.setTimeSlotIdIntoAvailableMap(WeekDay.MONDAY, timeSlot.id);
+            }
+
+            if (timeSlot.isAvailableForTue) {
+                this.setTimeSlotIdIntoAvailableMap(
+                    WeekDay.TUESDAY,
+                    timeSlot.id,
+                );
+            }
+
+            if (timeSlot.isAvailableForWed) {
+                this.setTimeSlotIdIntoAvailableMap(
+                    WeekDay.WEDNESDAY,
+                    timeSlot.id,
+                );
+            }
+
+            if (timeSlot.isAvailableForThu) {
+                this.setTimeSlotIdIntoAvailableMap(
+                    WeekDay.THURSDAY,
+                    timeSlot.id,
+                );
+            }
+
+            if (timeSlot.isAvailableForFri) {
+                this.setTimeSlotIdIntoAvailableMap(WeekDay.FRIDAY, timeSlot.id);
+            }
+
+            if (timeSlot.isAvailableForSat) {
+                this.setTimeSlotIdIntoAvailableMap(
+                    WeekDay.SATURDAY,
+                    timeSlot.id,
+                );
+            }
+
+            if (timeSlot.isAvailableForSun) {
+                this.setTimeSlotIdIntoAvailableMap(WeekDay.SUNDAY, timeSlot.id);
+            }
+        });
+    }
+
+    private setTimeSlotIdIntoAvailableMap(
+        weekday: WeekDay,
+        timeSlotId: number,
+    ): void {
+        if (this.timeSlotAvailableMap.has(weekday)) {
+            this.timeSlotAvailableMap.get(weekday).push(timeSlotId);
+        } else {
+            this.timeSlotAvailableMap.set(weekday, [timeSlotId]);
+        }
+    }
+
+    private setEmployeeIntoAvaialbilityMap(
+        weekday: WeekDay,
+        employeeId: number,
+        timeSlotId: number,
+    ) {
+        if (this.employeeAvailabilityMap.has(weekday)) {
+            this.employeeAvailabilityMap.get(weekday).push({
+                employeeId,
+                timeSlotId,
+            });
+        } else {
+            this.employeeAvailabilityMap.set(weekday, [
+                { employeeId, timeSlotId },
+            ]);
+        }
     }
 }

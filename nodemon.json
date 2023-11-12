@@ -3,5 +3,5 @@
     "ext": ".ts",
     "ignore": [],
     "legacyWatch": true,
-    "exec": "ts-node ./src/app.ts"
+    "exec": "ts-node -r dotenv/config ./src/app.ts"
 }
