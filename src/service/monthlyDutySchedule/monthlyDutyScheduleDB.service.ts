@@ -4,7 +4,7 @@ import IMonthlyDutySchedule from '../../models/monthlyDutySchedule/monthlyDutySc
 import MonthlyDutyScheduleDBModel from '../../models/monthlyDutySchedule/monthlyDutyScheduleDBModel.model';
 import DateUtil from '../../utils/date/dateUtil';
 import EmployeeDBModel from '../../models/employee/employeeDBModel.model';
-import MonthlyDutyScheduleGeneratorService from './monthlyDutyScheduleGenerator_2.service';
+import MonthlyDutyScheduleGeneratorService from './monthlyDutyScheduleGenerator.service';
 import EmployeeService from '../employee/employeeDB.service';
 import TimeSlotService from '../timeSlot/timeSlotDB.service';
 
