@@ -58,7 +58,7 @@ jobs:
                   tag: $(cat version_file.txt)
                   extra-build-args: '--build-arg CODE_VERSION=$(cat version_file.txt)'
 
-    deploy-to-dev:
+    deploy-to-staging:
         docker:
             - image: 'cimg/node:18.18.2'
         resource_class: medium
@@ -87,8 +87,7 @@ workflows:
                           only: /.*/
                       tags:
                           only: /.*/
-                  context: slack-secrets
-            - approval-deploy-to-dev:
+            - approval-deploy-to-staging:
                   type: approval
                   requires:
                       - unit-test
@@ -96,29 +95,23 @@ workflows:
                       branches:
                           only:
                               - staging
-                              - main
                       tags:
                           only: /.*/
-                  context: slack-secrets
             - build-and-push:
                   requires:
-                      - approval-deploy-to-dev
+                      - approval-deploy-to-staging
                   filters:
                       branches:
                           only:
                               - staging
-                              - main
                       tags:
                           only: /.*/
-                  context: slack-secrets
-            - deploy-to-dev:
+            - deploy-to-staging:
                   requires:
                       - build-and-push
                   filters:
                       branches:
                           only:
                               - staging
-                              - main
                       tags:
                           only: /.*/
-                  context: slack-secrets
