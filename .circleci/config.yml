@@ -42,7 +42,7 @@ jobs:
 
     build-and-push:
         docker:
-            - image: 'cimg/python:3.9.1'
+            - image: 'cimg/node:18.18.2'
         resource_class: medium
         steps:
             - checkout
@@ -60,7 +60,7 @@ jobs:
 
     deploy-to-dev:
         docker:
-            - image: 'cimg/python:3.9.1'
+            - image: 'cimg/node:18.18.2'
         resource_class: medium
         steps:
             - setup_remote_docker:
