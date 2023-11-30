@@ -90,7 +90,7 @@ jobs:
                   name: Login using your API key
                   command: postman login --with-api-key $POSTMAN_API_KEY
             - run: |
-                  postman collection run "postman/collections/DMA.json" --integration-id "153868-${CIRCLE_WORKFLOW_JOB_ID}"
+                  postman collection run "postman/collections/DMA.json" -e "21306548-497ed431-a20e-4a02-a653-0992a334bb28" --integration-id "153868-${CIRCLE_WORKFLOW_JOB_ID}"
 
 # Orchestrate our job run sequence
 workflows:
