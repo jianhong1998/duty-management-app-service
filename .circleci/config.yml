@@ -130,7 +130,7 @@ workflows:
                               - staging
                       tags:
                           only: /.*/
-            - api-test:
+            - automated-api-tests:
                   requires:
                       - deploy-to-staging
                   filters:
