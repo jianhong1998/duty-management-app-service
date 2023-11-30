@@ -1,0 +1,1077 @@
+{
+	"info": {
+		"_postman_id": "ea174dde-abb6-4eea-b71b-c639fcad1574",
+		"name": "DMA",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_uid": "21306548-ea174dde-abb6-4eea-b71b-c639fcad1574"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"item": [
+				{
+					"name": "Verify Token",
+					"id": "53fa1697-6ee0-4451-897e-5ad39358a88f",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/auth/",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "525462d4-5e0c-4562-b7ab-9d8de71c85c8",
+								"exec": [
+									"pm.test('Should return 200', () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Should has token', () => {",
+									"    const response = pm.response.json();",
+									"    const {isSuccess, data} = response;",
+									"",
+									"    pm.expect(isSuccess).to.be.true;",
+									"    pm.expect(data.token).to.be.string;",
+									"});",
+									"",
+									"pm.environment.set('adminToken', pm.response.json().data.token);",
+									"",
+									"pm.test('token should be the token in response', () => {",
+									"    const token = pm.environment.get('adminToken');",
+									"    const expectedToken = pm.response.json().data.token;",
+									"    ",
+									"    pm.expect(token).to.be.equal(expectedToken);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "781fc4d8-138c-491b-9044-ea1f36d13ab6",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@test.com\",\n    \"password\": \"password\"\n}\n// {\n//     \"email\": \"user1@test.com\",\n//     \"password\": \"password\"\n// }\n// {\n//     \"email\": \"jiyue0904@gmail.com\",\n//     \"password\": \"password\"\n// }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/auth/login",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Forget Password",
+					"id": "15624efd-08a4-40ee-a54e-1bc8168a0ed1",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"jiyue0904@gmail.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/auth/forget-password",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"forget-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"id": "f8c47cf9-3797-48ea-b8d7-802c64e52329",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMxLCJpYXQiOjE2OTg1NDAxMTl9.52PLmnTkWVWxGlPU94pEwkotL62bvfgjU3EgiGcAp8s",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"oldPassword\": \"k6ZveIcjvF\",\n    \"newPassword\": \"password\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/auth/reset-password",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "1d5c5d84-b6c8-46a5-8407-c2795b07eee1"
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Employee",
+					"item": [
+						{
+							"name": "Get Employee",
+							"id": "bdea73ce-5c62-41b7-a44d-78dff9dd2b4e",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{userToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}/api/employee",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"employee"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "9df1e213-5213-426d-ab95-b6f19c4a28bb"
+				},
+				{
+					"name": "Time Slot",
+					"item": [
+						{
+							"name": "Get All Time Slots",
+							"id": "49f87b92-746f-4ce3-99b0-1b140750d97a",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{userToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}/api/time-slot",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"time-slot"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Employee Default Weekly Time Slots",
+							"id": "f6ec600b-eb70-4b96-8d01-233f08dede98",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{userToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}/api/employee-time-slot/1",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"employee-time-slot",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Employee Default Weekly Time Slots",
+							"id": "156c5739-ddea-485b-b89f-d67e3eca0e21",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{userToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"mon\": 1,\n    \"tue\": null,\n    \"wed\": 2,\n    \"thu\": null,\n    \"fri\": null,\n    \"sat\": 3,\n    \"sun\": 4\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}/api/employee-time-slot/1",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"employee-time-slot",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "f570547e-f4a8-486d-9af9-d686fe847c05"
+				},
+				{
+					"name": "Monthly Schedule",
+					"item": [
+						{
+							"name": "Get Monthly Duty Schedule",
+							"id": "f2d77560-3249-4337-b23c-74b9823c0330",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{userToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}/api/monthly-schedule/?month=10&year=2023",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"monthly-schedule",
+										""
+									],
+									"query": [
+										{
+											"key": "month",
+											"value": "10"
+										},
+										{
+											"key": "year",
+											"value": "2023"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "b2af28ef-ed6d-4bf0-a643-9122a8c5a98c"
+				}
+			],
+			"id": "5eeb9af6-9ddf-4e09-a376-ecd759c43ede"
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "Employee",
+					"item": [
+						{
+							"name": "Get All Employees",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "a5b0c76e-83ab-46a5-8159-1ef260cd687c",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "4c183bc0-929d-47e1-b9ee-587480e21477",
+										"exec": [
+											"pm.test(\"Status code is 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"id": "8398a404-21dc-4746-a1e4-5a691b7fbbee",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}/api/admin/employee?pageNumber=1&pageSize=5",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"employee"
+									],
+									"query": [
+										{
+											"key": "isActive",
+											"value": "false",
+											"description": "Get Deleted Employee",
+											"disabled": true
+										},
+										{
+											"key": "isActive",
+											"value": "true",
+											"description": "Get Actived Employee",
+											"disabled": true
+										},
+										{
+											"key": "isActive",
+											"value": "false1",
+											"description": "Invalid",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "pageNumber",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "5"
+										},
+										{
+											"key": "sortBy",
+											"value": "role",
+											"disabled": true
+										},
+										{
+											"key": "sortOrder",
+											"value": "DESC",
+											"description": "\"ASC\" || \"DESC\"",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Employee",
+							"id": "ab3372d7-a0c1-4b8b-8cd4-091850730872",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}/api/admin/employee/31",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"employee",
+										"31"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Employee",
+							"id": "cc75ff8b-5615-4d28-ab79-33c49e89e726",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Test Employee\",\n    \"role\": \"Lead Service Crew\",\n    \"employmentType\": \"Full Time\",\n    \"contactNumber\": 98765432\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}/api/admin/employee/",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"employee",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Employee",
+							"id": "107ab277-d933-4b7a-b3b9-6389bde4dee1",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    // \"name\": \"Test Employee\",\n    // \"role\": \"Lead Service Crew\",\n    // \"employmentType\": \"Part Time\"\n    // \"contactNumber\": 98765432,\n    // \"isActive\": true\n    // \"monAvailabilityTimeSlotId\": 1,\n    // \"tueAvailabilityTimeSlotId\": null,\n    // \"wedAvailabilityTimeSlotId\": null,\n    // \"thuAvailabilityTimeSlotId\": null,\n    // \"friAvailabilityTimeSlotId\": null,\n    // \"satAvailabilityTimeSlotId\": null,\n    // \"sunAvailabilityTimeSlotId\": null\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}/api/admin/employee/1",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"employee",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Employee",
+							"id": "cfc43eb6-99a1-4c9c-adc3-cd3433e3ac0d",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{host}}/api/admin/employee/5",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"employee",
+										"5"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Reactive Employee",
+							"id": "a177a3bb-41d0-4e1f-874e-fab7bbb2934e",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [],
+								"url": {
+									"raw": "{{host}}/api/admin/employee/reactivate/5",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"employee",
+										"reactivate",
+										"5"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "d21f7cf1-1b6c-4a88-be8d-e67f5c9fac03"
+				},
+				{
+					"name": "Time Slot",
+					"item": [
+						{
+							"name": "Get Time Slot",
+							"id": "357bc50e-3e10-485f-9c33-b3992972d77d",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}/api/admin/time-slot/1",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"time-slot",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get All Time Slots",
+							"id": "3ad51d6d-7fe4-41f8-9370-f3e423a8091c",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}/api/time-slot",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"time-slot"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "8be962ef-01b3-4748-a020-782e33a9f91d"
+				},
+				{
+					"name": "User Account",
+					"item": [
+						{
+							"name": "Register User Account",
+							"id": "15a00f79-0c14-42b5-b47b-f12a3e425569",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Lee Jian Hong\",\n    \"employmentType\": \"Full Time\",\n    \"role\": \"Junior Service Crew\",\n    \"contactNumber\": 167256018,\n    \"emailAddress\": \"jiyue0904@gmail.com\",\n    \"accountType\": \"User\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}/api/user-account",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"user-account"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update User Account",
+							"id": "a6166d5a-01ae-4520-9cf1-0732183367b0",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Lee Jian Hong\",\n    \"employmentType\": \"Full Time\",\n    \"role\": \"Junior Service Crew\",\n    \"contactNumber\": 167256018,\n    \"emailAddress\": \"jianhong@test.com\",\n    \"accountType\": \"User\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}/api/user-account/employee/1",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"user-account",
+										"employee",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get User Account",
+							"id": "df7ff2e7-44bc-4d2c-aaa9-dd54ee0fb83f",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}/api/user-account/employee/1",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"user-account",
+										"employee",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "562a892b-52e2-4f98-8dd4-5f72d48a2ce0"
+				},
+				{
+					"name": "Monthly Schedule",
+					"item": [
+						{
+							"name": "Get Monthly Duty Schedule",
+							"id": "64d2b76d-fb8d-4130-ab68-4ad920a2b1b0",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}/api/admin/monthly-schedule/?month=10&year=2023",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"monthly-schedule",
+										""
+									],
+									"query": [
+										{
+											"key": "month",
+											"value": "10"
+										},
+										{
+											"key": "year",
+											"value": "2023"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Generate New Monthly Schedule",
+							"id": "3a6312a4-8a2d-4a3e-86ee-ff57bf415518",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"month\": 10,\n    \"year\": 2023\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}/api/admin/monthly-schedule",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"monthly-schedule"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Confirm Monthly Schedule",
+							"id": "91e6fe58-6b02-41a9-8989-524c1c2784b8",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [],
+								"url": {
+									"raw": "{{host}}/api/admin/monthly-schedule/confirm?year=2023&month=10",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"monthly-schedule",
+										"confirm"
+									],
+									"query": [
+										{
+											"key": "year",
+											"value": "2023"
+										},
+										{
+											"key": "month",
+											"value": "10"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Monthly Duty Schedule",
+							"id": "6cff794f-026b-447f-b9e8-baf63fe40c61",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{host}}/api/admin/monthly-schedule?month=10&year=2023",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"monthly-schedule"
+									],
+									"query": [
+										{
+											"key": "month",
+											"value": "10"
+										},
+										{
+											"key": "year",
+											"value": "2023"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "c44db115-8232-4e56-82ef-0fee19299379"
+				}
+			],
+			"id": "66d04717-d5e7-43bb-bca2-e077d8f5d0db"
+		}
+	]
+}
