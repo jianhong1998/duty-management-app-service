@@ -77,6 +77,21 @@ jobs:
                   verify-revision-is-deployed: true
                   container-image-name-updates: 'container=dma-staging,tag=$(cat version_file.txt)'
 
+    automated-api-tests:
+        docker:
+            - image: cimg/base:2021.04
+        steps:
+            - checkout
+            - run:
+                  name: Install Postman CLI
+                  command: |
+                      curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+            - run:
+                  name: Login using your API key
+                  command: postman login --with-api-key $POSTMAN_API_KEY
+            - run: |
+                  postman collection run "postman/collections/DMA.json" --integration-id "153868-${CIRCLE_WORKFLOW_JOB_ID}"
+
 # Orchestrate our job run sequence
 workflows:
     build-test-deploy:
@@ -109,6 +124,15 @@ workflows:
             - deploy-to-staging:
                   requires:
                       - build-and-push
+                  filters:
+                      branches:
+                          only:
+                              - staging
+                      tags:
+                          only: /.*/
+            - api-test:
+                  requires:
+                      - deploy-to-staging
                   filters:
                       branches:
                           only:
