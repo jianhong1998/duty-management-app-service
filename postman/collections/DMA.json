@@ -11,6 +11,43 @@
 			"item": [
 				{
 					"name": "Verify Token",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "d8145cc8-3fe5-45b8-9056-e4bc5b26c9cc",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "28131558-d68a-4724-8200-85516bc1c15d",
+								"exec": [
+									"pm.test('Should have status code 200', () => {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test('Should have boolean as data', () => {",
+									"    const response = pm.response.json();",
+									"",
+									"    pm.expect(response.isSuccess).to.be.true;",
+									"    pm.expect(response.data).to.be.a('boolean');",
+									"})",
+									"",
+									"pm.test('Data should be true', () => {",
+									"    const response = pm.response.json();",
+									"",
+									"    pm.expect(response.data).to.be.true;",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"id": "53fa1697-6ee0-4451-897e-5ad39358a88f",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true

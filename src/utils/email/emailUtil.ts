@@ -86,6 +86,7 @@ export default class EmailUtil {
             to: receiverEmail,
             subject: templateCopy.subject,
             html: templateCopy.html,
+            replyTo: process.env.REPLY_TO_EMAIL_ADDRESS,
         };
 
         return mailOptions;
