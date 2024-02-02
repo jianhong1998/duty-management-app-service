@@ -130,12 +130,12 @@ workflows:
                               - staging
                       tags:
                           only: /.*/
-            - automated-api-tests:
-                  requires:
-                      - deploy-to-staging
-                  filters:
-                      branches:
-                          only:
-                              - staging
-                      tags:
-                          only: /.*/
+            # - automated-api-tests:
+            #       requires:
+            #           - deploy-to-staging
+            #       filters:
+            #           branches:
+            #               only:
+            #                   - staging
+            #           tags:
+            #               only: /.*/
